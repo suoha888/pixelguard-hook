@@ -764,7 +764,7 @@
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="network-status">
-            <span class="pulse-dot"></span> X Layer Mainnet Active
+            <span class="pulse-dot"></span> <span data-i18n="net_active">X Layer Mainnet Active</span>
           </div>
           <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">中文</button>
         </div>
@@ -772,8 +772,8 @@
 
       <!-- HERO SECTION -->
       <section class="hero-section">
-        <h2 class="hero-title">Every Swap Leaves a Pixel.<br>Risky Exits Fund the Guard.</h2>
-        <p class="hero-subtitle">
+        <h2 class="hero-title" data-i18n="hero_title">Every Swap Leaves a Pixel.<br>Risky Exits Fund the Guard.</h2>
+        <p class="hero-subtitle" data-i18n="hero_subtitle">
           PixelGuard is a next-generation Uniswap v4 Hook that intercepts large dumps, charges a penalty fee to fund a contract treasury, and mints yield-bearing on-chain collectible NFT receipts to traders.
         </p>
       </section>
@@ -782,22 +782,22 @@
       <section class="feature-flow">
         <div class="flow-card">
           <div class="flow-step-num">01</div>
-          <h3 class="flow-title">Swap & Intercept</h3>
-          <p class="flow-desc">
+          <h3 class="flow-title" data-i18n="flow_title_1">Swap & Intercept</h3>
+          <p class="flow-desc" data-i18n="flow_desc_1">
             Traders trade on the PixelGuard pool. If a swap size is large (>= 5 tokens), it triggers a penalty LP fee (1.00%) and a **0.50% Hook Fee** to protect liquidity.
           </p>
         </div>
         <div class="flow-card">
           <div class="flow-step-num">02</div>
-          <h3 class="flow-title">Yield Accumulation</h3>
-          <p class="flow-desc">
+          <h3 class="flow-title" data-i18n="flow_title_2">Yield Accumulation</h3>
+          <p class="flow-desc" data-i18n="flow_desc_2">
             The 0.50% Hook Fee is directed into the contract's treasury. An automated staking accumulator (`rewardPerShare`) calculates dividends for all receipt holders.
           </p>
         </div>
         <div class="flow-card">
           <div class="flow-step-num">03</div>
-          <h3 class="flow-title">Claim & Discount</h3>
-          <p class="flow-desc">
+          <h3 class="flow-title" data-i18n="flow_title_3">Claim & Discount</h3>
+          <p class="flow-desc" data-i18n="flow_desc_3">
             NFT receipt holders claim accrued yield at any time. Holding the NFT also triggers an LP fee discount to **0.20%** (normal) and **0.80%** (guarded) for future swaps.
           </p>
         </div>
@@ -805,24 +805,24 @@
 
       <!-- LIVE CONTRACT SUMMARY -->
       <section class="dashboard-banner">
-        <h3 class="dashboard-title">📊 Live Contract Dashboard</h3>
+        <h3 class="dashboard-title" data-i18n="dash_title">📊 Live Contract Dashboard</h3>
         <div class="dashboard-grid">
           <div class="dash-stat">
-            <div class="dash-label">Hook Address</div>
+            <div class="dash-label" data-i18n="dash_hook_addr">Hook Address</div>
             <div class="dash-value">
               <a href="https://www.oklink.com/xlayer/address/0x54facbb2bfe6c818fe8087a6d86557b73fb600c0" target="_blank" class="dash-link">0x54fa...00c0</a>
             </div>
           </div>
           <div class="dash-stat">
-            <div class="dash-label">Pool ID (PXG-A / PXG-B)</div>
+            <div class="dash-label" data-i18n="dash_pool_id_lbl">Pool ID (PXG-A / PXG-B)</div>
             <div class="dash-value" style="font-size: 13px; font-family: 'JetBrains Mono', monospace;" id="dash-pool-id">0xe20b00508f7a552a132e...5fa282771d5c</div>
           </div>
           <div class="dash-stat">
-            <div class="dash-label">Total Receipts Minted</div>
+            <div class="dash-label" data-i18n="dash_total_receipts">Total Receipts Minted</div>
             <div class="dash-value" id="dash-total-supply">Fetching...</div>
           </div>
           <div class="dash-stat">
-            <div class="dash-label">Treasury Accumulated (Token A)</div>
+            <div class="dash-label" data-i18n="dash_treasury">Treasury Accumulated (Token A)</div>
             <div class="dash-value" id="dash-treasury-a">Fetching...</div>
           </div>
         </div>
@@ -830,46 +830,46 @@
 
       <!-- TABS HEADER -->
       <div class="tabs-header">
-        <button class="tab-btn active" onclick="switchTab('tab-sandbox')">Interactive Simulator</button>
-        <button class="tab-btn" onclick="switchTab('tab-onchain')">On-Chain ID Search</button>
-        <button class="tab-btn" onclick="switchTab('tab-trader')">Trader Portfolio</button>
-        <button class="tab-btn" onclick="switchTab('tab-offline')">Offline URI Parser</button>
-        <button class="tab-btn" onclick="switchTab('tab-wallet')" id="tab-btn-wallet">Wallet</button>
-        <button class="tab-btn" onclick="switchTab('tab-swapclaim')" id="tab-btn-swapclaim">Swap / Claim</button>
+        <button class="tab-btn active" onclick="switchTab('tab-sandbox')" data-i18n="tab_sandbox">Interactive Simulator</button>
+        <button class="tab-btn" onclick="switchTab('tab-onchain')" data-i18n="tab_onchain">On-Chain ID Search</button>
+        <button class="tab-btn" onclick="switchTab('tab-trader')" data-i18n="tab_trader">Trader Portfolio</button>
+        <button class="tab-btn" onclick="switchTab('tab-offline')" data-i18n="tab_offline">Offline URI Parser</button>
+        <button class="tab-btn" onclick="switchTab('tab-wallet')" id="tab-btn-wallet" data-i18n="tab_wallet">Wallet</button>
+        <button class="tab-btn" onclick="switchTab('tab-swapclaim')" id="tab-btn-swapclaim" data-i18n="tab_swapclaim">Swap / Claim</button>
       </div>
 
       <!-- TAB: SANDBOX (SIMULATOR) -->
       <div id="tab-sandbox" class="tab-content active split-panel">
         <div class="control-panel">
-          <h2 class="panel-title">🎮 Receipt Generator Sandbox</h2>
-          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+          <h2 class="panel-title" data-i18n="sandbox_title">🎮 Receipt Generator Sandbox</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="sandbox_desc">
             Adjust the swap parameters below. The browser will run the exact seed hashing and SVG generation logic from the smart contract to redraw the NFT receipt in real time.
           </p>
 
           <div class="form-group">
-            <label class="form-label" for="sim-address">Trader Address</label>
+            <label class="form-label" for="sim-address" data-i18n="sandbox_trader_addr">Trader Address</label>
             <input type="text" id="sim-address" value="0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a" spellcheck="false" />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="sim-swap-index">Swap Index (Counter)</label>
+            <label class="form-label" for="sim-swap-index" data-i18n="sandbox_swap_index">Swap Index (Counter)</label>
             <input type="number" id="sim-swap-index" value="3" />
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="sim-block">Block Number</label>
+            <label class="form-label" for="sim-block" data-i18n="sandbox_block_num">Block Number</label>
             <input type="number" id="sim-block" value="61171450" />
           </div>
 
           <div class="form-group">
-            <label class="form-label">Guard Status / Score</label>
+            <label class="form-label" data-i18n="sandbox_guard_score">Guard Status / Score</label>
             <div class="slider-container">
               <input type="range" id="sim-guard-score" min="0" max="75" step="75" value="0" oninput="updateSimSliderVal(this.value)" />
               <span class="slider-value" id="sim-slider-val">0</span>
             </div>
             <div class="quick-links" style="margin-top: 10px;">
-              <span class="quick-link-tag" onclick="quickSetSimGuard(0)">Normal (0)</span>
-              <span class="quick-link-tag" onclick="quickSetSimGuard(75)">Guarded (75)</span>
+              <span class="quick-link-tag" onclick="quickSetSimGuard(0)" data-i18n="sandbox_normal">Normal (0)</span>
+              <span class="quick-link-tag" onclick="quickSetSimGuard(75)" data-i18n="sandbox_guarded">Guarded (75)</span>
             </div>
           </div>
         </div>
@@ -892,27 +892,27 @@
       <!-- TAB: ON-CHAIN SEARCH -->
       <div id="tab-onchain" class="tab-content split-panel">
         <div class="control-panel">
-          <h2 class="panel-title">🔎 Retrieve On-Chain Receipt</h2>
-          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+          <h2 class="panel-title" data-i18n="onchain_title">🔎 Retrieve On-Chain Receipt</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="onchain_desc">
             Queries the X Layer blockchain RPC directly to fetch the real-time SVG image and traits stored inside the hook.
           </p>
           
           <div class="form-group">
-            <label class="form-label" for="onchain-token-id">Receipt Token ID</label>
+            <label class="form-label" for="onchain-token-id" data-i18n="onchain_token_id_lbl">Receipt Token ID</label>
             <div class="input-wrapper">
               <input type="number" id="onchain-token-id" placeholder="Enter Token ID (e.g. 1, 2)" value="2" />
-              <button class="btn-primary" id="btn-fetch-onchain">Fetch NFT</button>
+              <button class="btn-primary" id="btn-fetch-onchain" data-i18n="btn_fetch_nft">Fetch NFT</button>
             </div>
             <div class="quick-links">
-              <span class="quick-link-tag" onclick="quickFillOnchain(1)">ID #1 (Normal Swap)</span>
-              <span class="quick-link-tag" onclick="quickFillOnchain(2)">ID #2 (Guarded Swap)</span>
+              <span class="quick-link-tag" onclick="quickFillOnchain(1)" data-i18n="onchain_id_1">ID #1 (Normal Swap)</span>
+              <span class="quick-link-tag" onclick="quickFillOnchain(2)" data-i18n="onchain_id_2">ID #2 (Guarded Swap)</span>
             </div>
           </div>
 
           <div style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
-            <div class="dash-label">RPC Endpoint Used</div>
+            <div class="dash-label" data-i18n="onchain_rpc_lbl">RPC Endpoint Used</div>
             <input type="text" id="rpc-endpoint" value="https://rpc.xlayer.tech" style="font-size: 12px; margin-bottom: 12px;" />
-            <div class="dash-label">Hook Contract Address</div>
+            <div class="dash-label" data-i18n="onchain_hook_lbl">Hook Contract Address</div>
             <input type="text" id="contract-address" value="0x54facbb2bfe6c818fe8087a6d86557b73fb600c0" style="font-size: 12px;" />
           </div>
         </div>
@@ -920,7 +920,7 @@
         <div class="preview-panel" id="preview-panel-onchain">
           <div class="empty-state" id="onchain-empty">
             <span class="empty-icon">🖼️</span>
-            <span>Enter a Token ID and click fetch to render.</span>
+            <span data-i18n="onchain_empty_text">Enter a Token ID and click fetch to render.</span>
           </div>
           <div class="card-glow" id="onchain-card-container" style="display: none;">
             <div class="receipt-card">
@@ -937,19 +937,19 @@
       <!-- TAB: TRADER PORTFOLIO -->
       <div id="tab-trader" class="tab-content">
         <div class="control-panel">
-          <h2 class="panel-title">💼 Trader NFT Portfolio</h2>
-          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+          <h2 class="panel-title" data-i18n="trader_title">💼 Trader NFT Portfolio</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="trader_desc">
             Enumerates all swap receipt NFTs owned by a specific trader address using the hook's index registry.
           </p>
           
           <div class="form-group">
-            <label class="form-label" for="trader-address">Trader Wallet Address</label>
+            <label class="form-label" for="trader-address" data-i18n="trader_address_lbl">Trader Wallet Address</label>
             <div class="input-wrapper">
               <input type="text" id="trader-address" placeholder="0x..." value="0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a" />
-              <button class="btn-primary" id="btn-fetch-trader">Fetch Portfolio</button>
+              <button class="btn-primary" id="btn-fetch-trader" data-i18n="btn_fetch_portfolio">Fetch Portfolio</button>
             </div>
             <div class="quick-links">
-              <span class="quick-link-tag" onclick="quickFillTrader('0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a')">Deployer Wallet (0x34Ff...433a)</span>
+              <span class="quick-link-tag" onclick="quickFillTrader('0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a')" data-i18n="trader_deployer_lbl">Deployer Wallet (0x34Ff...433a)</span>
             </div>
           </div>
         </div>
@@ -957,7 +957,7 @@
         <div class="preview-panel" id="preview-panel-trader" style="min-height: 250px;">
           <div class="empty-state" id="trader-empty">
             <span class="empty-icon">📂</span>
-            <span>Enter a trader address to load receipts.</span>
+            <span data-i18n="trader_empty_text">Enter a trader address to load receipts.</span>
           </div>
           <div class="gallery-grid" id="trader-gallery" style="display: none;"></div>
         </div>
@@ -966,29 +966,29 @@
       <!-- TAB: OFFLINE PARSER -->
       <div id="tab-offline" class="tab-content split-panel">
         <div class="control-panel">
-          <h2 class="panel-title">✏️ Local URI Parser</h2>
-          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
-            Parses raw Base64-encoded `tokenURI` outputs without making any blockchain requests.
+          <h2 class="panel-title" data-i18n="offline_title">✏️ Local URI Parser</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="offline_desc">
+            Parses raw Base64-encoded <code>tokenURI</code> outputs without making any blockchain requests.
           </p>
           
           <div class="form-group">
-            <label class="form-label" for="offline-uri">Raw JSON Metadata String</label>
+            <label class="form-label" for="offline-uri" data-i18n="offline_metadata_lbl">Raw JSON Metadata String</label>
             <textarea id="offline-uri" spellcheck="false" placeholder="Paste data:application/json;utf8,{...} here"></textarea>
-            <button class="btn-primary" id="btn-parse-offline" style="width: 100%; margin-top: 14px;">Parse & Render</button>
+            <button class="btn-primary" id="btn-parse-offline" style="width: 100%; margin-top: 14px;" data-i18n="btn_parse_render">Parse & Render</button>
           </div>
         </div>
 
         <div class="preview-panel" id="preview-panel-offline">
           <div class="empty-state" id="offline-empty">
             <span class="empty-icon">💡</span>
-            <span>Paste raw JSON metadata to render.</span>
+            <span data-i18n="offline_empty_text">Paste raw JSON metadata to render.</span>
           </div>
           <div class="card-glow" id="offline-card-container" style="display: none;">
             <div class="receipt-card">
               <div class="receipt-image-container" id="offline-img-container">
                 <!-- SVG rendered here -->
               </div>
-              <div class="receipt-title" id="offline-title">Receipt Preview</div>
+              <div class="receipt-title" id="offline-title" data-i18n="offline_receipt_preview">Receipt Preview</div>
               <div class="trait-list" id="offline-traits"></div>
             </div>
           </div>
@@ -1011,11 +1011,11 @@
           <div id="wallet-details" style="display:none;">
             <div class="balance-grid">
               <div class="balance-card">
-                <div class="bal-label">PXG-A Balance</div>
+                <div class="bal-label" data-i18n="wallet_token0_lbl">PXG-A Balance</div>
                 <div class="bal-value" id="wallet-token0-bal">--</div>
               </div>
               <div class="balance-card">
-                <div class="bal-label">PXG-B Balance</div>
+                <div class="bal-label" data-i18n="wallet_token1_lbl">PXG-B Balance</div>
                 <div class="bal-value" id="wallet-token1-bal">--</div>
               </div>
             </div>
@@ -1025,7 +1025,7 @@
                 <div class="bal-value" id="wallet-receipt-count">--</div>
               </div>
               <div class="balance-card">
-                <div class="bal-label">Guard Reserve</div>
+                <div class="bal-label" data-i18n="wallet_guard_reserve_lbl">Guard Reserve</div>
                 <div class="bal-value" id="wallet-guard-reserve">--</div>
               </div>
             </div>
@@ -1040,7 +1040,7 @@
           </div>
           <div id="wallet-info-panel" style="display:none;width:100%;">
             <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:24px;">
-              <h3 style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:0 0 16px 0;">Hook Contract</h3>
+              <h3 style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:0 0 16px 0;" data-i18n="wallet_hook_contract_lbl">Hook Contract</h3>
               <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary);word-break:break-all;margin-bottom:8px;">
                 <span data-i18n="label_address">Address</span>: <span id="wallet-hook-addr" style="color:var(--text-primary);">-</span>
               </div>
@@ -1105,7 +1105,7 @@
           <div id="swapclaim-result" style="display:none;width:100%;">
             <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:24px;text-align:center;">
               <div id="swapclaim-result-icon" style="font-size:48px;margin-bottom:12px;">✅</div>
-              <div id="swapclaim-result-title" style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;">Transaction Confirmed</div>
+              <div id="swapclaim-result-title" style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;" data-i18n="swapclaim_result_confirmed">Transaction Confirmed</div>
               <div id="swapclaim-result-hash" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary);word-break:break-all;margin-bottom:16px;">-</div>
               <a class="quick-link-tag" id="swapclaim-tx-link" href="#" target="_blank" data-i18n="view_explorer">View on Explorer</a>
             </div>
@@ -1115,7 +1115,7 @@
 
       <!-- FEATURED SHOWCASES -->
       <section class="examples-section">
-        <h3 class="section-heading">🌟 Live Featured Showcases (X Layer Mainnet)</h3>
+        <h3 class="section-heading" data-i18n="featured_title">🌟 Live Featured Showcases (X Layer Mainnet)</h3>
         <div class="gallery-grid" id="featured-grid">
           <!-- Handcrafted real on-chain examples -->
           <div class="gallery-card" onclick="loadFeatured(1)">
@@ -1124,8 +1124,8 @@
             </div>
             <div class="gallery-title" style="color: var(--accent-emerald);">PixelGuard #1 (Normal)</div>
             <div class="gallery-meta">
-              <span>Guard Score: 0</span>
-              <span>LP Fee: 0.30%</span>
+              <span data-i18n="featured_guard_score_0">Guard Score: 0</span>
+              <span data-i18n="featured_lp_fee_030">LP Fee: 0.30%</span>
             </div>
           </div>
 
@@ -1135,8 +1135,8 @@
             </div>
             <div class="gallery-title" style="color: var(--accent-amber);">PixelGuard #2 (Guarded)</div>
             <div class="gallery-meta">
-              <span>Guard Score: 75</span>
-              <span>LP Fee: 1.00%</span>
+              <span data-i18n="featured_guard_score_75">Guard Score: 75</span>
+              <span data-i18n="featured_lp_fee_100">LP Fee: 1.00%</span>
             </div>
           </div>
         </div>
@@ -1150,7 +1150,7 @@
           <a href="https://web3.okx.com/zh-hans/xlayer/build-x-hackathon/hook" target="_blank">OKX Hackathon</a>
           <a href="https://web3.okx.com/sv/xlayer/docs/developer/build-on-xlayer/network-information" target="_blank">X Layer Docs</a>
         </div>
-        <div style="margin-bottom:8px;">
+        <div style="margin-bottom:8px;" data-i18n="footer_hackathon">
           Built for <strong>OKX Build X Hackathon</strong> — Hook Track on X Layer Mainnet
         </div>
         <div class="footer-copy">
@@ -1255,15 +1255,15 @@
 
         // Inject SVG
         document.getElementById('sim-svg-container').innerHTML = svg;
-        document.getElementById('sim-card-title').textContent = `PixelGuard #${guardScore > 0 ? 'Orange' : 'Green'}`;
+        document.getElementById('sim-card-title').textContent = `PixelGuard #${guardScore > 0 ? (currentLang === 'en' ? 'Orange' : '橙色') : (currentLang === 'en' ? 'Green' : '绿色')}`;
         
         // Setup traits list
         const traitsList = document.getElementById('sim-traits-list');
         traitsList.innerHTML = `
-          <div class="trait-item"><span class="trait-name">Swap Index</span><span class="trait-val">${swapIndex}</span></div>
-          <div class="trait-item"><span class="trait-name">Guard Score</span><span class="trait-val">${guardScore}</span></div>
-          <div class="trait-item"><span class="trait-name">LP Fee</span><span class="trait-val">${guardScore > 0 ? '0.80% (Disc)' : '0.20% (Disc)'}</span></div>
-          <div class="trait-item"><span class="trait-name">Block</span><span class="trait-val">${blockNum}</span></div>
+          <div class="trait-item"><span class="trait-name">${t('trait_swap_index')}</span><span class="trait-val">${swapIndex}</span></div>
+          <div class="trait-item"><span class="trait-name">${t('trait_guard_score')}</span><span class="trait-val">${guardScore}</span></div>
+          <div class="trait-item"><span class="trait-name">${t('trait_lp_fee')}</span><span class="trait-val">${guardScore > 0 ? '0.80% (' + (currentLang === 'en' ? 'Disc' : '折扣') + ')' : '0.20% (' + (currentLang === 'en' ? 'Disc' : '折扣') + ')'}</span></div>
+          <div class="trait-item"><span class="trait-name">${t('trait_block')}</span><span class="trait-val">${blockNum}</span></div>
         `;
 
         // Update glow
@@ -1306,7 +1306,7 @@
           quickSetSimGuard(75);
         }
         switchTab('tab-sandbox');
-        showToast("Example parameters loaded!");
+        showToast(t('toast_example_loaded'));
       }
 
       // Query contract wrapper using Ethers.js (read-only via public RPC)
@@ -1348,7 +1348,7 @@
       document.getElementById('btn-fetch-onchain').addEventListener('click', async () => {
         const tokenId = parseInt(document.getElementById('onchain-token-id').value);
         if (isNaN(tokenId)) {
-          showToast("Please enter a valid Token ID", true);
+          showToast(t('err_invalid_token_id'), true);
           return;
         }
 
@@ -1362,7 +1362,7 @@
         const loader = document.createElement('div');
         loader.className = 'loader';
         const loadingText = document.createElement('span');
-        loadingText.textContent = `Fetching Token #${tokenId} metadata from X Layer...`;
+        loadingText.textContent = t('fetching_onchain_metadata').replace('{id}', tokenId);
         loadingText.style.color = 'var(--text-secondary)';
         panel.appendChild(loader);
         panel.appendChild(loadingText);
@@ -1397,7 +1397,8 @@
           metadata.attributes.forEach(attr => {
             const item = document.createElement('div');
             item.className = 'trait-item';
-            item.innerHTML = `<span class="trait-name">${attr.trait_type}</span><span class="trait-val">${attr.value}</span>`;
+            const translatedName = translateTraitType(attr.trait_type);
+            item.innerHTML = `<span class="trait-name">${translatedName}</span><span class="trait-val">${attr.value}</span>`;
             traitsList.appendChild(item);
             if (attr.trait_type === 'Guard Score') {
               guardScore = parseInt(attr.value);
@@ -1415,9 +1416,10 @@
           }
 
           card.style.display = 'block';
-          showToast("On-chain metadata loaded!");
+          showToast(t('toast_onchain_loaded'));
         } catch (error) {
           empty.style.display = 'flex';
+
           showToast(`Error: ${error.message}`, true);
         } finally {
           loader.remove();
@@ -1429,7 +1431,7 @@
       document.getElementById('btn-fetch-trader').addEventListener('click', async () => {
         const address = document.getElementById('trader-address').value.trim();
         if (!ethers.isAddress(address)) {
-          showToast("Invalid EVM wallet address", true);
+          showToast(t('err_invalid_address'), true);
           return;
         }
 
@@ -1443,7 +1445,7 @@
         const loader = document.createElement('div');
         loader.className = 'loader';
         const loadingText = document.createElement('span');
-        loadingText.textContent = `Loading receipts owned by ${address.slice(0,6)}...${address.slice(-4)}`;
+        loadingText.textContent = t('loading_trader_receipts').replace('{address}', address.slice(0,6) + '...' + address.slice(-4));
         loadingText.style.color = 'var(--text-secondary)';
         panel.appendChild(loader);
         panel.appendChild(loadingText);
@@ -1454,9 +1456,9 @@
           const totalReceipts = Number(count);
 
           if (totalReceipts === 0) {
-            empty.innerHTML = `<span class="empty-icon">📭</span><span>This trader does not own any PixelGuard receipts yet.</span>`;
+            empty.innerHTML = `<span class="empty-icon">📭</span><span>${t('trader_no_receipts')}</span>`;
             empty.style.display = 'flex';
-            showToast("No receipts found.");
+            showToast(t('err_no_receipts_found'));
             return;
           }
 
@@ -1493,8 +1495,8 @@
               <div class="gallery-img-container">${inlineSvg}</div>
               <div class="gallery-title" style="color: ${guardScore > 0 ? 'var(--accent-amber)' : 'var(--accent-emerald)'}">${metadata.name}</div>
               <div class="gallery-meta">
-                <span>Guard Score: ${guardScore}</span>
-                <span>Block: ${blockNum}</span>
+                <span>${t('trait_guard_score')}: ${guardScore}</span>
+                <span>${t('trait_block')}: ${blockNum}</span>
               </div>
             `;
             
@@ -1509,7 +1511,7 @@
           }
 
           gallery.style.display = 'grid';
-          showToast(`Successfully loaded ${totalReceipts} receipts!`);
+          showToast(t('toast_loaded_receipts'));
         } catch (error) {
           empty.style.display = 'flex';
           showToast(`Error: ${error.message}`, true);
@@ -1528,7 +1530,7 @@
         const card = document.getElementById('offline-card-container');
 
         if (!raw.startsWith(prefix)) {
-          showToast("Expected a valid 'data:application/json;utf8,' metadata string prefix", true);
+          showToast(t('err_invalid_uri_prefix'), true);
           empty.style.display = 'flex';
           card.style.display = 'none';
           return;
@@ -1554,7 +1556,8 @@
           metadata.attributes.forEach(attr => {
             const item = document.createElement('div');
             item.className = 'trait-item';
-            item.innerHTML = `<span class="trait-name">${attr.trait_type}</span><span class="trait-val">${attr.value}</span>`;
+            const translatedName = translateTraitType(attr.trait_type);
+            item.innerHTML = `<span class="trait-name">${translatedName}</span><span class="trait-val">${attr.value}</span>`;
             traitsList.appendChild(item);
             if (attr.trait_type === 'Guard Score') {
               guardScore = parseInt(attr.value);
@@ -1573,7 +1576,7 @@
 
           empty.style.display = 'none';
           card.style.display = 'block';
-          showToast("Parsed and rendered successfully!");
+          showToast(t('toast_parsed_successfully'));
         } catch (error) {
           empty.style.display = 'flex';
           card.style.display = 'none';
@@ -1583,6 +1586,8 @@
 
       // Global loaders on load
       window.addEventListener('DOMContentLoaded', () => {
+        // Initialize localization
+        applyI18n();
         // Run Simulator immediately with default inputs
         runSimulation();
         // Draw featured showcases
@@ -1663,73 +1668,273 @@
       let currentLang = 'en';
       const i18n = {
         en: {
-          wallet_title: "🔗 Wallet Connection", wallet_desc: "Connect your MetaMask wallet to interact with the PixelGuard Hook on X Layer mainnet.",
-          btn_connect: "Connect MetaMask", btn_disconnect: "Disconnect",
+          net_active: "X Layer Mainnet Active",
+          hero_title: "Every Swap Leaves a Pixel.<br>Risky Exits Fund the Guard.",
+          hero_subtitle: "PixelGuard is a next-generation Uniswap v4 Hook that intercepts large dumps, charges a penalty fee to fund a contract treasury, and mints yield-bearing on-chain collectible NFT receipts to traders.",
+          flow_title_1: "Swap & Intercept",
+          flow_desc_1: "Traders trade on the PixelGuard pool. If a swap size is large (>= 5 tokens), it triggers a penalty LP fee (1.00%) and a <strong>0.50% Hook Fee</strong> to protect liquidity.",
+          flow_title_2: "Yield Accumulation",
+          flow_desc_2: "The 0.50% Hook Fee is directed into the contract's treasury. An automated staking accumulator (<code>rewardPerShare</code>) calculates dividends for all receipt holders.",
+          flow_title_3: "Claim & Discount",
+          flow_desc_3: "NFT receipt holders claim accrued yield at any time. Holding the NFT also triggers an LP fee discount to <strong>0.20%</strong> (normal) and <strong>0.80%</strong> (guarded) for future swaps.",
+          dash_title: "📊 Live Contract Dashboard",
+          dash_hook_addr: "Hook Address",
+          dash_pool_id_lbl: "Pool ID (PXG-A / PXG-B)",
+          dash_total_receipts: "Total Receipts Minted",
+          dash_treasury: "Treasury Accumulated (Token A)",
+          tab_sandbox: "Interactive Simulator",
+          tab_onchain: "On-Chain ID Search",
+          tab_trader: "Trader Portfolio",
+          tab_offline: "Offline URI Parser",
+          tab_wallet: "Wallet",
+          tab_swapclaim: "Swap / Claim",
+          sandbox_title: "🎮 Receipt Generator Sandbox",
+          sandbox_desc: "Adjust the swap parameters below. The browser will run the exact seed hashing and SVG generation logic from the smart contract to redraw the NFT receipt in real time.",
+          sandbox_trader_addr: "Trader Address",
+          sandbox_swap_index: "Swap Index (Counter)",
+          sandbox_block_num: "Block Number",
+          sandbox_guard_score: "Guard Status / Score",
+          sandbox_normal: "Normal (0)",
+          sandbox_guarded: "Guarded (75)",
+          onchain_title: "🔎 Retrieve On-Chain Receipt",
+          onchain_desc: "Queries the X Layer blockchain RPC directly to fetch the real-time SVG image and traits stored inside the hook.",
+          onchain_token_id_lbl: "Receipt Token ID",
+          btn_fetch_nft: "Fetch NFT",
+          onchain_id_1: "ID #1 (Normal Swap)",
+          onchain_id_2: "ID #2 (Guarded Swap)",
+          onchain_rpc_lbl: "RPC Endpoint Used",
+          onchain_hook_lbl: "Hook Contract Address",
+          onchain_empty_text: "Enter a Token ID and click fetch to render.",
+          trader_title: "💼 Trader NFT Portfolio",
+          trader_desc: "Enumerates all swap receipt NFTs owned by a specific trader address using the hook's index registry.",
+          trader_address_lbl: "Trader Wallet Address",
+          btn_fetch_portfolio: "Fetch Portfolio",
+          trader_deployer_lbl: "Deployer Wallet (0x34Ff...433a)",
+          trader_empty_text: "Enter a trader address to load receipts.",
+          offline_title: "✏️ Local URI Parser",
+          offline_desc: "Parses raw Base64-encoded <code>tokenURI</code> outputs without making any blockchain requests.",
+          offline_metadata_lbl: "Raw JSON Metadata String",
+          btn_parse_render: "Parse & Render",
+          offline_empty_text: "Paste raw JSON metadata to render.",
+          wallet_title: "🔗 Wallet Connection",
+          wallet_desc: "Connect your MetaMask wallet to interact with the PixelGuard Hook on X Layer mainnet.",
+          btn_connect: "Connect MetaMask",
+          btn_disconnect: "Disconnect",
           wallet_empty: "Connect your wallet to see balances and interact with the Hook.",
-          label_receipts: "Receipts Owned", label_address: "Address",
-          swap_title: "💱 Swap & Claim", swap_desc: "Execute swaps through the PixelGuard pool and claim accrued treasury yield.",
-          swap_section_title: "Execute Swap", swap_amount_label: "Swap Amount (Token A → Token B)",
+          label_receipts: "Receipts Owned",
+          label_address: "Address",
+          wallet_token0_lbl: "PXG-A Balance",
+          wallet_token1_lbl: "PXG-B Balance",
+          wallet_guard_reserve_lbl: "Guard Reserve",
+          wallet_hook_contract_lbl: "Hook Contract",
+          swap_title: "💱 Swap & Claim",
+          swap_desc: "Execute swaps through the PixelGuard pool and claim accrued treasury yield.",
+          swap_section_title: "Execute Swap",
+          swap_amount_label: "Swap Amount (Token A → Token B)",
           swap_guard_warning: "⚠ Large swap detected. This will trigger Guarded mode (1.00% LP fee + 0.50% hook fee).",
-          swap_nft_discount: "NFT Discount (optional)", swap_no_discount: "No discount (standard fee)",
+          swap_nft_discount: "NFT Discount (optional)",
+          swap_no_discount: "No discount (standard fee)",
           swap_nft_hint: "Hold a receipt NFT to get 0.20% / 0.80% discounted LP fees.",
-          btn_swap: "Swap (Requires Wallet)", claim_section_title: "Claim Treasury Yield",
+          btn_swap: "Swap (Requires Wallet)",
+          claim_section_title: "Claim Treasury Yield",
           claim_desc: "Your receipt NFTs accumulate yield from guarded swap fees. Claim your share below.",
-          claim_empty: "Connect wallet to see your receipts.", btn_claim: "Claim",
+          claim_empty: "Connect wallet to see your receipts.",
+          btn_claim: "Claim",
           swapclaim_empty: "Connect your wallet, then execute swaps or claim yield here.",
+          swapclaim_result_confirmed: "Transaction Confirmed",
           view_explorer: "View on Explorer",
           net_wrong: "Wrong network. Please switch to X Layer (chainId 196).",
-          net_switching: "Switching to X Layer...", net_switched: "Switched to X Layer.",
-          net_adding: "Adding X Layer to MetaMask...", connected: "Connected",
-          connecting: "Connecting...", err_connect: "Connection error",
+          net_switching: "Switching to X Layer...",
+          net_switched: "Switched to X Layer.",
+          net_adding: "Adding X Layer to MetaMask...",
+          connected: "Connected",
+          connecting: "Connecting...",
+          not_connected: "Not connected",
+          err_connect: "Connection error",
           err_no_metamask: "MetaMask not found. Please install the MetaMask extension.",
           err_no_wallet: "Please connect your wallet first.",
           err_amount: "Please enter a valid swap amount.",
           err_approve: "Token approval failed",
-          err_swap: "Swap failed", err_claim: "Claim failed",
+          err_swap: "Swap failed",
+          err_claim: "Claim failed",
           err_receipts: "Failed to load receipts",
-          approving: "Approving token...", approved: "Token approved!",
-          swapping: "Swapping...", swapped: "Swap confirmed!",
-          claiming: "Claiming...", claimed: "Yield claimed!",
-          no_receipts: "No receipts found.", loading_receipts: "Loading receipts..."
+          approving: "Approving token...",
+          approved: "Token approved!",
+          swapping: "Swapping...",
+          swapped: "Swap confirmed!",
+          claiming: "Claiming...",
+          claimed: "Yield claimed!",
+          no_receipts: "No receipts found.",
+          loading_receipts: "Loading receipts...",
+          featured_title: "🌟 Live Featured Showcases (X Layer Mainnet)",
+          featured_guard_score_0: "Guard Score: 0",
+          featured_lp_fee_030: "LP Fee: 0.30%",
+          featured_guard_score_75: "Guard Score: 75",
+          featured_lp_fee_100: "LP Fee: 1.00%",
+          footer_hackathon: "Built for <strong>OKX Build X Hackathon</strong> — Hook Track on X Layer Mainnet",
+          trait_swap_index: "Swap Index",
+          trait_guard_score: "Guard Score",
+          trait_lp_fee: "LP Fee",
+          trait_block: "Block",
+          toast_copied: "Copied to clipboard!",
+          toast_onchain_loaded: "On-chain metadata loaded!",
+          toast_parsed_successfully: "Parsed and rendered successfully!",
+          toast_loaded_receipts: "Successfully loaded receipts!",
+          toast_example_loaded: "Example parameters loaded!",
+          err_invalid_token_id: "Please enter a valid Token ID",
+          err_invalid_address: "Invalid EVM wallet address",
+          err_invalid_uri_prefix: "Expected a valid 'data:application/json;utf8,' metadata string prefix",
+          err_no_receipts_found: "No receipts found.",
+          fetching_onchain_metadata: "Fetching Token #{id} metadata from X Layer...",
+          loading_trader_receipts: "Loading receipts owned by {address}...",
+          trader_no_receipts: "This trader does not own any PixelGuard receipts yet.",
+          offline_receipt_preview: "Receipt Preview",
+          not_connected_state: "Not connected"
         },
         zh: {
-          wallet_title: "🔗 钱包连接", wallet_desc: "连接 MetaMask 钱包，在 X Layer 主网上与 PixelGuard Hook 交互。",
-          btn_connect: "连接 MetaMask", btn_disconnect: "断开连接",
+          net_active: "X Layer 主网已激活",
+          hero_title: "每一次交换，都是一个像素。<br>高风险交易，守护者金库。",
+          hero_subtitle: "PixelGuard 是下一代 Uniswap v4 Hook，可拦截大额抛售、收取惩罚金以资助合约金库，并向交易员铸造带收益的链上像素 NFT 收据。",
+          flow_title_1: "交换与拦截",
+          flow_desc_1: "交易员在 PixelGuard 池上进行交易。如果交易额度较大（>= 5 代币），将触发 1.00% 的 LP 惩罚性费率和 <strong>0.50% 的 Hook 费用</strong>以保护流动性。",
+          flow_title_2: "收益累积",
+          flow_desc_2: "0.50% 的 Hook 费用将直接注入合约的金库。全自动分红累积器（<code>rewardPerShare</code>）将计算所有 NFT 持有者应得的股息。",
+          flow_title_3: "领取与折扣",
+          flow_desc_3: "NFT 收据持有者可随时领取金库累积的收益。持有 NFT 还可以享受未来交易的 LP 费率折扣，普通交易降至 <strong>0.20%</strong>，大额交易降至 <strong>0.80%</strong>。",
+          dash_title: "📊 合约实时状态面板",
+          dash_hook_addr: "Hook 合约地址",
+          dash_pool_id_lbl: "资金池 ID (PXG-A / PXG-B)",
+          dash_total_receipts: "已铸造收据总数",
+          dash_treasury: "金库累积余额 (Token A)",
+          tab_sandbox: "交互式模拟器",
+          tab_onchain: "链上收据查询",
+          tab_trader: "交易员资产包",
+          tab_offline: "离线 URI 解析器",
+          tab_wallet: "连接钱包",
+          tab_swapclaim: "交换 / 提取收益",
+          sandbox_title: "🎮 收据生成模拟沙盒",
+          sandbox_desc: "在下方调整交换参数。浏览器将运行与智能合约完全一致的 seed 哈希与 SVG 生成逻辑，实时重绘 NFT 收据。",
+          sandbox_trader_addr: "交易员地址",
+          sandbox_swap_index: "交换索引 (计数器)",
+          sandbox_block_num: "区块高度",
+          sandbox_guard_score: "守护状态 / 评分",
+          sandbox_normal: "普通 (0)",
+          sandbox_guarded: "守护 (75)",
+          onchain_title: "🔎 检索链上收据",
+          onchain_desc: "直接查询 X Layer 区块链 RPC，以获取存储在 Hook 内的实时 SVG 图像与属性。",
+          onchain_token_id_lbl: "收据 Token ID",
+          btn_fetch_nft: "获取 NFT",
+          onchain_id_1: "ID #1 (普通交换)",
+          onchain_id_2: "ID #2 (守护交换)",
+          onchain_rpc_lbl: "使用的 RPC 节点",
+          onchain_hook_lbl: "Hook 合约地址",
+          onchain_empty_text: "输入 Token ID 并点击获取以渲染。",
+          trader_title: "💼 交易员 NFT 资产包",
+          trader_desc: "使用 Hook 的索引注册表枚举特定交易员地址拥有的所有交换收据 NFT。",
+          trader_address_lbl: "交易员钱包地址",
+          btn_fetch_portfolio: "获取资产包",
+          trader_deployer_lbl: "部署者钱包 (0x34Ff...433a)",
+          trader_empty_text: "输入交易员地址以加载收据。",
+          offline_title: "✏️ 本地 URI 解析器",
+          offline_desc: "直接解析原始 Base64 编码的 <code>tokenURI</code> 输出，无需向区块链发送请求。",
+          offline_metadata_lbl: "原始 JSON 元数据字符串",
+          btn_parse_render: "解析并渲染",
+          offline_empty_text: "粘贴原始 JSON 元数据以进行渲染。",
+          wallet_title: "🔗 钱包连接",
+          wallet_desc: "连接 MetaMask 钱包，在 X Layer 主网上与 PixelGuard Hook 交互。",
+          btn_connect: "连接 MetaMask",
+          btn_disconnect: "断开连接",
           wallet_empty: "连接钱包以查看余额并与 Hook 交互。",
-          label_receipts: "持有 Receipt 数量", label_address: "地址",
-          swap_title: "💱 交换 & 领取收益", swap_desc: "通过 PixelGuard 池执行交换，并领取累积的金库收益。",
-          swap_section_title: "执行交换", swap_amount_label: "交换数量 (Token A → Token B)",
+          label_receipts: "持有 Receipt 数量",
+          label_address: "地址",
+          wallet_token0_lbl: "PXG-A 余额",
+          wallet_token1_lbl: "PXG-B 余额",
+          wallet_guard_reserve_lbl: "金库储备金",
+          wallet_hook_contract_lbl: "Hook 合约信息",
+          swap_title: "💱 交换 & 领取收益",
+          swap_desc: "通过 PixelGuard 池执行交换，并领取累积的金库收益。",
+          swap_section_title: "执行交换",
+          swap_amount_label: "交换数量 (Token A → Token B)",
           swap_guard_warning: "⚠ 检测到大额交换！将触发 Guarded 模式（1.00% LP 费用 + 0.50% Hook 费用）。",
-          swap_nft_discount: "NFT 折扣（可选）", swap_no_discount: "不使用折扣（标准费率）",
+          swap_nft_discount: "NFT 折扣（可选）",
+          swap_no_discount: "不使用折扣（标准费率）",
           swap_nft_hint: "持有 Receipt NFT 可享受 0.20% / 0.80% 折扣 LP 费率。",
-          btn_swap: "交换（需要钱包）", claim_section_title: "领取金库收益",
+          btn_swap: "交换（需要钱包）",
+          claim_section_title: "领取金库收益",
           claim_desc: "你的 Receipt NFT 从大额交换费用中累积收益。点击下方领取你的份额。",
-          claim_empty: "连接钱包以查看你的 Receipt。", btn_claim: "领取",
+          claim_empty: "连接钱包以查看你的 Receipt。",
+          btn_claim: "领取",
           swapclaim_empty: "连接钱包后，在此执行交换或领取收益。",
+          swapclaim_result_confirmed: "交易已确认",
           view_explorer: "在浏览器查看",
           net_wrong: "网络错误，请切换到 X Layer（chainId 196）。",
-          net_switching: "正在切换到 X Layer...", net_switched: "已切换到 X Layer。",
-          net_adding: "正在添加 X Layer 到 MetaMask...", connected: "已连接",
-          connecting: "连接中...", err_connect: "连接错误",
+          net_switching: "正在切换到 X Layer...",
+          net_switched: "已切换到 X Layer。",
+          net_adding: "正在添加 X Layer 到 MetaMask...",
+          connected: "已连接",
+          connecting: "连接中...",
+          not_connected: "未连接",
+          err_connect: "连接错误",
           err_no_metamask: "未检测到 MetaMask，请安装 MetaMask 扩展。",
           err_no_wallet: "请先连接钱包。",
           err_amount: "请输入有效的交换数量。",
           err_approve: "代币授权失败",
-          err_swap: "交换失败", err_claim: "领取失败",
+          err_swap: "交换失败",
+          err_claim: "领取失败",
           err_receipts: "加载 Receipt 失败",
-          approving: "正在授权代币...", approved: "代币已授权！",
-          swapping: "交换中...", swapped: "交换已确认！",
-          claiming: "领取中...", claimed: "收益已领取！",
-          no_receipts: "未找到 Receipt。", loading_receipts: "加载 Receipt 中..."
+          approving: "正在授权代币...",
+          approved: "代币已授权！",
+          swapping: "交换中...",
+          swapped: "交换已确认！",
+          claiming: "领取中...",
+          claimed: "收益已领取！",
+          no_receipts: "未找到 Receipt。",
+          loading_receipts: "加载 Receipt 中...",
+          featured_title: "🌟 推荐展示用例 (X Layer 主网)",
+          featured_guard_score_0: "安全评分: 0",
+          featured_lp_fee_030: "LP 费率: 0.30%",
+          featured_guard_score_75: "安全评分: 75",
+          featured_lp_fee_100: "LP 费率: 1.00%",
+          footer_hackathon: "专为 <strong>OKX Build X 黑客松</strong> 开发 — 部署于 X Layer 主网的 Hook 赛道",
+          trait_swap_index: "交易索引",
+          trait_guard_score: "安全评分",
+          trait_lp_fee: "LP 手续费",
+          trait_block: "区块",
+          toast_copied: "已复制到剪贴板！",
+          toast_onchain_loaded: "已成功加载链上元数据！",
+          toast_parsed_successfully: "解析并渲染成功！",
+          toast_loaded_receipts: "收据加载成功！",
+          toast_example_loaded: "样例参数已加载！",
+          err_invalid_token_id: "请输入有效的 Token ID",
+          err_invalid_address: "无效的以太坊钱包地址",
+          err_invalid_uri_prefix: "期望为有效的 'data:application/json;utf8,' 元数据前缀",
+          err_no_receipts_found: "没有找到收据。",
+          fetching_onchain_metadata: "正在从 X Layer 获取 Token #{id} 的元数据...",
+          loading_trader_receipts: "正在加载 {address} 拥有的收据...",
+          trader_no_receipts: "该交易员目前尚未拥有任何 PixelGuard 收据。",
+          offline_receipt_preview: "收据预览",
+          not_connected_state: "未连接"
         }
       };
 
       function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key; }
 
+      function translateTraitType(type) {
+        const mapping = {
+          'Trader': 'trait_trader',
+          'Swap Index': 'trait_swap_index',
+          'Guard Score': 'trait_guard_score',
+          'LP Fee': 'trait_lp_fee',
+          'Block': 'trait_block'
+        };
+        const key = mapping[type];
+        return key ? t(key) : type;
+      }
+
       function applyI18n() {
         document.querySelectorAll('[data-i18n]').forEach(el => {
           const k = el.getAttribute('data-i18n');
-          if (i18n[currentLang][k]) el.textContent = i18n[currentLang][k];
+          if (i18n[currentLang][k]) el.innerHTML = i18n[currentLang][k];
         });
       }
 
