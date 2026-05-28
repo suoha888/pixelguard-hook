@@ -999,14 +999,21 @@
       <div id="tab-wallet" class="tab-content split-panel">
         <div class="control-panel">
           <h2 class="panel-title" data-i18n="wallet_title">🔗 Wallet Connection</h2>
-          <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="wallet_desc">Connect your MetaMask wallet to interact with the PixelGuard Hook on X Layer mainnet.</p>
+          <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="wallet_desc">Connect your OKX Wallet to interact with the PixelGuard Hook on X Layer mainnet.</p>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label" style="margin-bottom: 8px;">Select Wallet / 选择钱包</label>
+            <select id="wallet-type-select" style="width:100%; height:46px; background:rgba(2, 6, 23, 0.6); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:#fff; padding:0 14px; font-family:inherit; font-size:14px;">
+              <option value="okx">OKX Wallet / 欧易钱包</option>
+            </select>
+          </div>
 
           <div class="wallet-status-bar" id="wallet-status">
             <span class="dot disconnected" id="wallet-dot"></span>
             <span id="wallet-status-text">Not connected</span>
           </div>
 
-          <button class="btn-primary" id="btn-connect-wallet" onclick="connectWallet()" style="width:100%;margin-bottom:20px;" data-i18n="btn_connect">Connect MetaMask</button>
+          <button class="btn-primary" id="btn-connect-wallet" onclick="connectWallet()" style="width:100%;margin-bottom:20px;" data-i18n="btn_connect">Connect OKX Wallet</button>
 
           <div id="wallet-details" style="display:none;">
             <div class="balance-grid">
@@ -1065,6 +1072,10 @@
           <!-- Swap Section -->
           <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:20px;margin-bottom:20px;">
             <h3 style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;margin:0 0 14px 0;" data-i18n="swap_section_title">Execute Swap</h3>
+            <div style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.24);border-radius:12px;padding:14px 16px;margin-bottom:18px;">
+              <div style="font-size:13px;color:var(--text-secondary);line-height:1.55;margin-bottom:12px;" data-i18n="faucet_hint">New here? Claim PXGA/PXGB demo tokens first, then run a swap to mint your PixelGuard receipt.</div>
+              <button class="btn-primary" id="btn-demo-tokens" onclick="claimDemoTokens()" style="width:100%;" data-i18n="btn_demo_tokens">Get Demo Tokens</button>
+            </div>
             <div class="form-group">
               <label class="form-label" data-i18n="swap_amount_label">Swap Amount (Token A → Token B)</label>
               <input type="text" id="swap-amount" value="1" />
@@ -1610,7 +1621,21 @@
           });
         }
 
-        // Restore wallet connection if MetaMask is already connected
+        // Restore saved wallet choice if exists
+        const savedWalletType = localStorage.getItem('selected_wallet_type');
+        const walletTypeSelect = document.getElementById('wallet-type-select');
+        if (savedWalletType && walletTypeSelect) {
+          walletTypeSelect.value = savedWalletType;
+        }
+
+        if (walletTypeSelect) {
+          walletTypeSelect.addEventListener('change', () => {
+            localStorage.setItem('selected_wallet_type', walletTypeSelect.value);
+            window.location.reload();
+          });
+        }
+
+        // Restore wallet connection if already connected
         checkWalletConnection();
       });
 
@@ -1651,6 +1676,7 @@
         "function balanceOf(address owner) view returns (uint256)",
         "function allowance(address owner, address spender) view returns (uint256)",
         "function approve(address spender, uint256 amount) returns (bool)",
+        "function mint(address to, uint256 amount)",
         "function symbol() view returns (string)",
         "function decimals() view returns (uint8)"
       ];
@@ -1717,8 +1743,8 @@
           btn_parse_render: "Parse & Render",
           offline_empty_text: "Paste raw JSON metadata to render.",
           wallet_title: "🔗 Wallet Connection",
-          wallet_desc: "Connect your MetaMask wallet to interact with the PixelGuard Hook on X Layer mainnet.",
-          btn_connect: "Connect MetaMask",
+          wallet_desc: "Connect your OKX Wallet to interact with the PixelGuard Hook on X Layer mainnet.",
+          btn_connect: "Connect OKX Wallet",
           btn_disconnect: "Disconnect",
           wallet_empty: "Connect your wallet to see balances and interact with the Hook.",
           label_receipts: "Receipts Owned",
@@ -1735,6 +1761,8 @@
           swap_nft_discount: "NFT Discount (optional)",
           swap_no_discount: "No discount (standard fee)",
           swap_nft_hint: "Hold a receipt NFT to get 0.20% / 0.80% discounted LP fees.",
+          faucet_hint: "New here? Claim PXGA/PXGB demo tokens first, then run a swap to mint your PixelGuard receipt.",
+          btn_demo_tokens: "Get Demo Tokens",
           btn_swap: "Swap (Requires Wallet)",
           claim_section_title: "Claim Treasury Yield",
           claim_desc: "Your receipt NFTs accumulate yield from guarded swap fees. Claim your share below.",
@@ -1746,18 +1774,24 @@
           net_wrong: "Wrong network. Please switch to X Layer (chainId 196).",
           net_switching: "Switching to X Layer...",
           net_switched: "Switched to X Layer.",
-          net_adding: "Adding X Layer to MetaMask...",
+          net_adding: "Adding X Layer to OKX Wallet...",
           connected: "Connected",
           connecting: "Connecting...",
           not_connected: "Not connected",
           err_connect: "Connection error",
-          err_no_metamask: "MetaMask not found. Please install the MetaMask extension.",
+          err_no_metamask: "OKX Wallet not found. Please install the OKX Wallet extension.",
           err_no_wallet: "Please connect your wallet first.",
           err_amount: "Please enter a valid swap amount.",
+          err_insufficient_demo_tokens: "You do not have enough demo tokens for this swap. Claim demo tokens first.",
           err_approve: "Token approval failed",
           err_swap: "Swap failed",
+          err_faucet: "Demo token claim failed",
           err_claim: "Claim failed",
           err_receipts: "Failed to load receipts",
+          faucet_claiming: "Claiming PXGA/PXGB demo tokens...",
+          faucet_claiming_token0: "Claiming the first demo token...",
+          faucet_claiming_token1: "Claiming the second demo token...",
+          faucet_claimed: "Demo tokens claimed. Try a 1 token swap to mint your first receipt.",
           approving: "Approving token...",
           approved: "Token approved!",
           swapping: "Swapping...",
@@ -1841,8 +1875,8 @@
           btn_parse_render: "解析并渲染",
           offline_empty_text: "粘贴原始 JSON 元数据以进行渲染。",
           wallet_title: "🔗 钱包连接",
-          wallet_desc: "连接 MetaMask 钱包，在 X Layer 主网上与 PixelGuard Hook 交互。",
-          btn_connect: "连接 MetaMask",
+          wallet_desc: "连接您的 OKX 钱包，在 X Layer 主网上与 PixelGuard Hook 交互。",
+          btn_connect: "连接 OKX 钱包",
           btn_disconnect: "断开连接",
           wallet_empty: "连接钱包以查看余额并与 Hook 交互。",
           label_receipts: "持有 Receipt 数量",
@@ -1870,12 +1904,12 @@
           net_wrong: "网络错误，请切换到 X Layer（chainId 196）。",
           net_switching: "正在切换到 X Layer...",
           net_switched: "已切换到 X Layer。",
-          net_adding: "正在添加 X Layer 到 MetaMask...",
+          net_adding: "正在添加 X Layer 到 OKX 钱包...",
           connected: "已连接",
           connecting: "连接中...",
           not_connected: "未连接",
           err_connect: "连接错误",
-          err_no_metamask: "未检测到 MetaMask，请安装 MetaMask 扩展。",
+          err_no_metamask: "未检测到 OKX 钱包，请安装 OKX 钱包扩展程序。",
           err_no_wallet: "请先连接钱包。",
           err_amount: "请输入有效的交换数量。",
           err_approve: "代币授权失败",
@@ -1947,10 +1981,25 @@
       // ── WALLET ──
       let userAddress = null;
 
+      function getProvider() {
+        const selectEl = document.getElementById('wallet-type-select');
+        const type = selectEl ? selectEl.value : 'default';
+        if (type === 'okx') {
+          return window.okxwallet || window.ethereum;
+        } else if (type === 'metamask') {
+          if (window.ethereum && window.ethereum.providers) {
+            return window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum;
+          }
+          return window.ethereum;
+        }
+        return window.ethereum || window.okxwallet;
+      }
+
       async function checkWalletConnection() {
-        if (typeof window.ethereum === 'undefined') return;
+        const p = getProvider();
+        if (typeof p === 'undefined') return;
         try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          const accounts = await p.request({ method: 'eth_accounts' });
           if (accounts && accounts.length > 0) {
             userAddress = accounts[0];
             onWalletConnected();
@@ -1959,13 +2008,19 @@
       }
 
       async function connectWallet() {
-        if (typeof window.ethereum === 'undefined') {
+        const p = getProvider();
+        if (typeof p === 'undefined') {
           showToast(t('err_no_metamask'), true);
           return;
         }
         try {
           setWalletStatus('connecting');
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          // Force MetaMask / OKX Wallet account selection modal to allow changing accounts
+          await p.request({
+            method: 'wallet_requestPermissions',
+            params: [{ eth_accounts: {} }]
+          });
+          const accounts = await p.request({ method: 'eth_requestAccounts' });
           userAddress = accounts[0];
           await ensureXLayer();
           onWalletConnected();
@@ -1976,11 +2031,12 @@
       }
 
       async function ensureXLayer() {
-        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        const p = getProvider();
+        const chainId = await p.request({ method: 'eth_chainId' });
         if (parseInt(chainId, 16) === XLAYER_CHAIN_ID) return;
         try {
           setWalletStatus('switching');
-          await window.ethereum.request({
+          await p.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: '0x' + XLAYER_CHAIN_ID.toString(16) }]
           });
@@ -1988,7 +2044,7 @@
         } catch (e) {
           if (e.code === 4902) {
             setWalletStatus('adding');
-            await window.ethereum.request({
+            await p.request({
               method: 'wallet_addEthereumChain',
               params: [{
                 chainId: '0x' + XLAYER_CHAIN_ID.toString(16),
@@ -2043,7 +2099,7 @@
       async function loadWalletDetails() {
         if (!userAddress) return;
         try {
-          const provider = new ethers.BrowserProvider(window.ethereum);
+          const provider = new ethers.BrowserProvider(getProvider());
           const token0 = new ethers.Contract(TOKEN0_ADDRESS, erc20ABI, provider);
           const token1 = new ethers.Contract(TOKEN1_ADDRESS, erc20ABI, provider);
           const hookRO = new ethers.Contract(HOOK_ADDRESS, hookABI, provider);
@@ -2064,15 +2120,45 @@
       }
 
       // Listen for account/network changes
-      if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.on('accountsChanged', (accs) => {
+      const activeP = getProvider();
+      if (typeof activeP !== 'undefined') {
+        activeP.on('accountsChanged', (accs) => {
           if (accs.length === 0) { disconnectWallet(); }
           else { userAddress = accs[0]; onWalletConnected(); }
         });
-        window.ethereum.on('chainChanged', () => { window.location.reload(); });
+        activeP.on('chainChanged', () => { window.location.reload(); });
       }
 
       // ── SWAP ──
+      async function claimDemoTokens() {
+        if (!userAddress) { showToast(t('err_no_wallet'), true); return; }
+        const btn = document.getElementById('btn-demo-tokens');
+        if (btn) btn.disabled = true;
+        try {
+          setMsg('swap-msg', t('faucet_claiming'));
+
+          // Call serverless faucet API — deployer wallet transfers tokens to user
+          const resp = await fetch('/api/faucet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ address: userAddress })
+          });
+          const data = await resp.json();
+
+          if (!resp.ok || !data.success) {
+            throw new Error(data.error || 'Faucet failed');
+          }
+
+          setMsg('swap-msg', t('faucet_claimed'), false, true);
+          showToast(t('faucet_claimed'));
+          await loadWalletDetails();
+        } catch (e) {
+          setMsg('swap-msg', t('err_faucet') + ': ' + (e.reason || e.message || e), true);
+        } finally {
+          if (btn) btn.disabled = false;
+        }
+      }
+
       async function executeSwap() {
         if (!userAddress) { showToast(t('err_no_wallet'), true); return; }
         const amountStr = document.getElementById('swap-amount').value.trim();
@@ -2083,12 +2169,18 @@
 
         try {
           setMsg('swap-msg', t('approving'));
-          const provider = new ethers.BrowserProvider(window.ethereum);
+          const provider = new ethers.BrowserProvider(getProvider());
           const signer = await provider.getSigner();
           const token0 = new ethers.Contract(TOKEN0_ADDRESS, erc20ABI, signer);
           const router = new ethers.Contract(ROUTER_ADDRESS, routerABI, signer);
 
           const amountIn = ethers.parseEther(amountStr);
+          const balance = await token0.balanceOf(userAddress);
+          if (balance < amountIn) {
+            setMsg('swap-msg', t('err_insufficient_demo_tokens'), true);
+            return;
+          }
+
           const currentAllowance = await token0.allowance(userAddress, ROUTER_ADDRESS);
           if (currentAllowance < amountIn) {
             const tx = await token0.approve(ROUTER_ADDRESS, ethers.MaxUint256);
@@ -2129,7 +2221,7 @@
         swapNftSelect.innerHTML = '<option value="0">' + t('swap_no_discount') + '</option>';
         listEl.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:20px;">' + t('loading_receipts') + '</div>';
         try {
-          const provider = new ethers.BrowserProvider(window.ethereum);
+          const provider = new ethers.BrowserProvider(getProvider());
           const hookRO = new ethers.Contract(HOOK_ADDRESS, hookABI, provider);
           const count = Number(await hookRO.getReceiptCountOfTrader(userAddress));
           if (count === 0) {
@@ -2162,7 +2254,7 @@
         if (!userAddress) { showToast(t('err_no_wallet'), true); return; }
         try {
           setMsg('claim-msg', t('claiming'));
-          const provider = new ethers.BrowserProvider(window.ethereum);
+          const provider = new ethers.BrowserProvider(getProvider());
           const signer = await provider.getSigner();
           const hook = new ethers.Contract(HOOK_ADDRESS, hookABI, signer);
           const tx = await hook.claim(tokenId, poolKey);

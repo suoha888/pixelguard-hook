@@ -27,6 +27,10 @@ contract DemoToken {
         return true;
     }
 
+    function mint(address to, uint256 amount) external {
+        _mint(to, amount);
+    }
+
     function transfer(address to, uint256 amount) external returns (bool) {
         _transfer(msg.sender, to, amount);
         return true;

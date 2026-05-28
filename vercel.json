@@ -1,0 +1,7 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/docs/demo/receipt-viewer.html" },
+    { "source": "/demo", "destination": "/docs/demo/receipt-viewer.html" }
+  ]
+}
