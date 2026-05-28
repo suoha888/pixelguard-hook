@@ -44,6 +44,6 @@ Fill this file while running the deployment runbook. These are the exact values 
 ## Demo Artifacts
 
 - Demo video URL: [USER_TO_FILL]
-- GitHub repository URL: [USER_TO_FILL]
+- GitHub repository URL: https://github.com/suoha888/pixelguard-hook
 - X account: [USER_TO_FILL]
 - X submission post URL: [USER_TO_FILL]
