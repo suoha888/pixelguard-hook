@@ -30,7 +30,7 @@ notepad .env
 Required before deployment:
 
 - `PRIVATE_KEY`: deployment wallet private key.
-- `OKLINK_API_KEY`: needed for source verification.
+- `OKLINK_API_KEY`: (Optional) needed for automated verification. Since OKLink standalone API registration is discontinued, this key may be obtained from the OKX Onchain OS Developer Portal. If skipped or failed, manual verification via OKX Explorer is recommended.
 - `XLAYER_MAINNET_RPC`: keep `https://rpc.xlayer.tech` unless you have a better RPC.
 - `V4_POOL_MANAGER`: keep the default X Layer mainnet address.
 - `V4_POSITION_MANAGER`: keep the default X Layer mainnet address.
@@ -179,7 +179,9 @@ Wait one or two minutes after deployment, then run:
 .\tools\pixelguard-deploy.ps1 -Step verify
 ```
 
-Copy the explorer verification URL into `docs/submission/deployment-results.md`.
+*Note: If automated verification is skipped or fails, the script will output the exact constructor argument hex string. You can use it to perform manual verification on the OKX Explorer web UI (https://www.oklink.com/xlayer) under the Contract tab.*
+
+Copy the explorer verification URL (or the contract page URL once verified) into `docs/submission/deployment-results.md`.
 
 ## 9. Generate Submission Copy
 

@@ -93,7 +93,7 @@ if ($values.ContainsKey("PRIVATE_KEY") -and -not [string]::IsNullOrWhiteSpace($v
 }
 
 if (-not $values.ContainsKey("OKLINK_API_KEY") -or [string]::IsNullOrWhiteSpace($values["OKLINK_API_KEY"])) {
-    $warnings.Add("OKLINK_API_KEY is empty. Deployment can run, but verification will fail.")
+    $warnings.Add("OKLINK_API_KEY is empty. Deployment can run. Note that OKLink API is suspended; you can verify manually on the OKX Explorer website if needed.")
 }
 
 if ($Network -eq "mainnet") {

@@ -28,9 +28,9 @@ notepad .env
 .\tools\pixelguard-wallet-check.ps1
 ```
 
-至少填写 `PRIVATE_KEY` 和 `OKLINK_API_KEY`。主网默认的 `V4_POOL_MANAGER` / `V4_POSITION_MANAGER` 不要随意修改。
+至少填写 `PRIVATE_KEY`。`OKLINK_API_KEY`（可在 OKX Onchain OS 开发者平台 https://web3.okx.com/zh-hans/onchainos/dev-portal 生成）是可选的。由于 OKLink API 服务调整，自动验证命令可能会失败。推荐使用手动网页验证。
 
-3. 按顺序部署：
+3. 按顺序部署与测试：
 
 ```powershell
 .\tools\pixelguard-deploy.ps1 -Step demoTokens
@@ -42,6 +42,8 @@ notepad .env
 .\tools\pixelguard-deploy.ps1 -Step read
 .\tools\pixelguard-deploy.ps1 -Step verify
 ```
+
+*注意：即便没有 API Key，也可以运行最后一步 `-Step verify` 来自动生成并显示手动验证所需的构造函数 Hex 参数。*
 
 4. 把每一步输出填进：
 

@@ -130,21 +130,53 @@ switch ($Step) {
         Invoke-Forge -ForgeArgs @("script", "script/04_ReadPixelGuard.s.sol", "--tc", "ReadPixelGuardScript", "--rpc-url", $RpcUrl)
     }
     "verify" {
-        Require-Env @("OKLINK_API_KEY", "HOOK_ADDRESS")
+        Require-Env @("HOOK_ADDRESS")
         Require-V4-Core
         $RpcUrl = Get-RpcUrl
         $chain = if ($Network -eq "mainnet") { "XLAYER" } else { "XLAYER_TESTNET" }
         $verifyUrl = "https://www.oklink.com/api/v5/explorer/contract/verify-source-code-plugin/$chain"
         $constructorArgs = & cast abi-encode "constructor(address)" $env:V4_POOL_MANAGER
-        Invoke-Forge -ForgeArgs @(
-            "verify-contract",
-            "--rpc-url", $RpcUrl,
-            "--verifier-url", $verifyUrl,
-            "--verifier-api-key", $env:OKLINK_API_KEY,
-            "--constructor-args", $constructorArgs,
-            "--watch",
-            $env:HOOK_ADDRESS,
-            "src/PixelGuardHook.sol:PixelGuardHook"
-        )
+        $verifySuccess = $false
+
+        if ($env:OKLINK_API_KEY -and -not [string]::IsNullOrWhiteSpace($env:OKLINK_API_KEY)) {
+            Write-Host "Attempting automated verification via OKLink API..." -ForegroundColor Cyan
+            try {
+                Invoke-Forge -ForgeArgs @(
+                    "verify-contract",
+                    "--rpc-url", $RpcUrl,
+                    "--verifier-url", $verifyUrl,
+                    "--verifier-api-key", $env:OKLINK_API_KEY,
+                    "--constructor-args", $constructorArgs,
+                    "--watch",
+                    $env:HOOK_ADDRESS,
+                    "src/PixelGuardHook.sol:PixelGuardHook"
+                )
+                if ($LASTEXITCODE -eq 0) {
+                    $verifySuccess = $true
+                }
+            } catch {
+                Write-Host "Automated verification encountered an error: $_" -ForegroundColor Yellow
+            }
+        } else {
+            Write-Host "OKLINK_API_KEY is not set. Skipping automated verification." -ForegroundColor Yellow
+        }
+
+        if (-not $verifySuccess) {
+            Write-Host ""
+            Write-Host "======================================================================" -ForegroundColor Yellow
+            Write-Host "OKLink API verification is unavailable, failed, or skipped." -ForegroundColor Yellow
+            Write-Host "Please perform manual verification on the OKX Explorer web UI:" -ForegroundColor Yellow
+            $explorerDomain = if ($Network -eq "mainnet") { "https://www.oklink.com/xlayer" } else { "https://www.oklink.com/xlayer-test" }
+            Write-Host "$explorerDomain/address/$($env:HOOK_ADDRESS)" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "Manual Verification Instructions:" -ForegroundColor White
+            Write-Host "1. Open the explorer URL above, go to the 'Contract' -> 'Verify Contract' tab." -ForegroundColor White
+            Write-Host "2. Select Compiler Type: 'Standard JSON Input' (recommended) or 'Single File'." -ForegroundColor White
+            Write-Host "3. Solidity Compiler Version: v0.8.30" -ForegroundColor White
+            Write-Host "4. Constructor Arguments (ABI-encoded, copy and paste):" -ForegroundColor White
+            Write-Host "   $constructorArgs" -ForegroundColor Green
+            Write-Host "======================================================================" -ForegroundColor Yellow
+            Write-Host ""
+        }
     }
 }

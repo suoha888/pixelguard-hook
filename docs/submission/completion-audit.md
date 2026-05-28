@@ -13,7 +13,7 @@ Official source: https://web3.okx.com/zh-hans/xlayer/build-x-hackathon/hook
 | Deploy Hook on X Layer mainnet or testnet | Owner action required | Deployment script exists: `tools/pixelguard-deploy.ps1 -Step hook`. Requires funded wallet/private key. |
 | Deploy or initialize V4 Pool on X Layer | Owner action required | Pool script exists: `tools/pixelguard-deploy.ps1 -Step pool`. Requires deployed Hook, tokens, and wallet. |
 | Hook behavior triggered by real swap | Owner action required | Normal and large-swap scripts exist: `-Step swap` and `-Step largeSwap`. Requires deployed pool. |
-| Submit verifiable contract address | Owner action required | Verification script exists: `tools/pixelguard-deploy.ps1 -Step verify`. Requires `OKLINK_API_KEY` and deployed Hook address. |
+| Submit verifiable contract address | Owner action required | Verification script exists: `tools/pixelguard-deploy.ps1 -Step verify`. Supports automated verification or manual verification on the OKX Explorer web UI (recommended as OKLink API is deprecated). |
 | Independent X account and tagged post | Owner action required | X plan/copy exists in `docs/submission/twitter-plan.md` and `generated-submit-pack.md`. |
 | Google Form before deadline | Owner action required | Submission copy pack exists; final form submission requires owner account/browser. |
 | Demo video recommended, 1-3 minutes | Ready for owner recording | Script exists in `docs/submission/demo-video-script.md`; receipt viewer exists in `docs/demo/receipt-viewer.html`. |

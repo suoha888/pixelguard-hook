@@ -256,9 +256,31 @@ For the Demo video, run a normal swap and a large swap. The swap receiver and Pi
 
 ## Verify On OKX Explorer
 
-OKX docs recommend applying for an OKLink API key, waiting one to two minutes after deployment, then using Foundry verification with an OKLink verify URL.
+> [!IMPORTANT]
+> The standalone OKLink Explorer API registration is discontinued. Programmatic verification via `forge verify-contract` requires an API Key generated from the OKX Onchain OS Developer Portal (https://web3.okx.com/zh-hans/onchainos/dev-portal), but may fail if the API endpoints are deprecated.
+>
+> **Manual verification via the OKX Web3 Explorer website is the most reliable fallback.**
 
-Example for X Layer testnet:
+### Method A: Manual Web Verification (Recommended)
+
+1. Go to the Hook explorer page on the OKX X Layer Explorer:
+   - **Mainnet**: `https://www.oklink.com/xlayer/address/<HOOK_ADDRESS>`
+   - **Testnet**: `https://www.oklink.com/xlayer-test/address/<HOOK_ADDRESS>`
+2. Click the **Contract** tab and select **Verify Contract**.
+3. Select the following settings:
+   - **Compiler Type**: `Standard JSON Input` (recommended) or `Single File`.
+   - **Solidity Version**: `v0.8.30` (matching compiler version in `foundry.toml`).
+   - **Constructor Arguments**: Run `.\tools\pixelguard-deploy.ps1 -Step verify` without an API key to display the correct encoded hex string for copy-pasting.
+
+### Method B: Automated CLI Verification (Optional)
+
+If you have a valid unified API key from the OKX Onchain OS Developer Portal, set it in `.env` as `OKLINK_API_KEY`, and run:
+
+```powershell
+.\tools\pixelguard-deploy.ps1 -Step verify
+```
+
+This runs the under-the-hood `forge verify-contract` command:
 
 ```powershell
 forge verify-contract `
@@ -271,7 +293,7 @@ forge verify-contract `
   src/PixelGuardHook.sol:PixelGuardHook
 ```
 
-For mainnet, use `XLAYER` in the verify URL.
+For mainnet, the verifier URL uses `XLAYER` instead of `XLAYER_TESTNET`.
 
 ## Submission Package
 
