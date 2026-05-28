@@ -49,7 +49,10 @@ contract PixelGuardHookTest is BaseTest {
 
         (currency0, currency1) = deployCurrencyPair();
 
-        address flags = address(uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG) ^ (0x5047 << 144));
+        address flags = address(
+            uint160(Hooks.BEFORE_SWAP_FLAG | Hooks.AFTER_SWAP_FLAG | Hooks.BEFORE_SWAP_RETURNS_DELTA_FLAG)
+                ^ (0x5047 << 144)
+        );
         bytes memory constructorArgs = abi.encode(poolManager);
         deployCodeTo("PixelGuardHook.sol:PixelGuardHook", constructorArgs, flags);
         hook = PixelGuardHook(flags);
@@ -316,6 +319,77 @@ contract PixelGuardHookTest is BaseTest {
         }
 
         return false;
+    }
+
+    function testUtilityFeeDiscount() public {
+        _swapAsTrader(1e18);
+        assertEq(hook.lastFeeOverride(poolId), 3000);
+        assertEq(hook.ownerOf(1), trader);
+
+        vm.prank(trader);
+        swapRouter.swapExactTokensForTokens({
+            amountIn: 1e18,
+            amountOutMin: 0,
+            zeroForOne: true,
+            poolKey: poolKey,
+            hookData: abi.encode(trader, 1),
+            receiver: trader,
+            deadline: block.timestamp + 1
+        });
+        assertEq(hook.lastFeeOverride(poolId), 2000);
+
+        _swapAsTrader(5e18);
+        assertEq(hook.lastFeeOverride(poolId), 10000);
+        assertEq(hook.ownerOf(3), trader);
+
+        vm.prank(trader);
+        swapRouter.swapExactTokensForTokens({
+            amountIn: 5e18,
+            amountOutMin: 0,
+            zeroForOne: true,
+            poolKey: poolKey,
+            hookData: abi.encode(trader, 3),
+            receiver: trader,
+            deadline: block.timestamp + 1
+        });
+        assertEq(hook.lastFeeOverride(poolId), 8000);
+    }
+
+    function testGuardedHookFeeCollection() public {
+        uint256 balanceBefore = currency0.balanceOf(address(hook));
+
+        uint256 swapAmount = 10e18;
+        _swapAsTrader(swapAmount);
+
+        uint256 expectedHookFee = (swapAmount * 50) / 10000;
+        uint256 balanceAfter = currency0.balanceOf(address(hook));
+
+        assertEq(balanceAfter - balanceBefore, expectedHookFee);
+
+        uint256 expectedRewardPerShare = (expectedHookFee * 1e18) / 1;
+        assertEq(hook.rewardPerShare(poolId, currency0), expectedRewardPerShare);
+    }
+
+    function testRewardClaimingAccumulator() public {
+        _swapAsTrader(1e18);
+        assertEq(hook.ownerOf(1), trader);
+
+        uint256 swapAmount = 10e18;
+        _swapAsTrader(swapAmount);
+
+        uint256 expectedHookFee = (swapAmount * 50) / 10000;
+
+        uint256 traderBalanceBefore = currency0.balanceOf(trader);
+
+        vm.prank(trader);
+        hook.claim(1, poolKey);
+
+        uint256 traderBalanceAfter = currency0.balanceOf(trader);
+        assertEq(traderBalanceAfter - traderBalanceBefore, expectedHookFee);
+
+        vm.prank(trader);
+        hook.claim(1, poolKey);
+        assertEq(currency0.balanceOf(trader), traderBalanceAfter);
     }
 }
 

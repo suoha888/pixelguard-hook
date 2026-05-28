@@ -11,13 +11,13 @@ PixelGuard Hook
 ## Short Description
 
 ```text
-PixelGuard is a Uniswap v4 Hook on X Layer that turns every swap into an on-chain 24x24 SVG receipt NFT while using beforeSwap to classify risky large swaps and return a guarded dynamic LP fee override. afterSwap mints the receipt and updates a per-pool guard reserve counter, making Hook behavior visible, shareable, and verifiable through real swaps.
+PixelGuard is a Uniswap v4 Hook on X Layer that turns every swap into an on-chain 24x24 SVG receipt NFT while using beforeSwap to classify risky large swaps and return a guarded dynamic LP fee override. afterSwap mints the receipt, updates a per-pool guard reserve counter, and accumulates treasury yield via a staking accumulator (rewardPerShare). NFT holders can claim pro-rata dividends from guarded swap fees and enjoy discounted LP fees (0.20% normal / 0.80% guarded) on future swaps, making Hook behavior visible, shareable, and verifiable through real swaps.
 ```
 
 ## Technical Description
 
 ```text
-PixelGuard enables beforeSwap and afterSwap permissions. beforeSwap records the pool swap index, decodes the trader from hookData, classifies large exact-input swaps, stores traderRiskScore, emits GuardedSwap, and returns a dynamic fee override for dynamic-fee pools. afterSwap mints an ERC-721 PixelGuard receipt NFT to the trader, stores receipt metadata including an on-chain seed, emits PixelReceiptMinted, and increments guardReserve. The submitted pool uses a dynamic-fee Uniswap v4 pool on X Layer mainnet (chain id 196). The project includes Foundry tests proving real v4 swap-triggered minting, tokenURI/SVG generation, reserve accounting, large-swap risk behavior, and receipt transfer/approval behavior.
+PixelGuard enables beforeSwap and afterSwap permissions. beforeSwap records the pool swap index, decodes the trader from hookData, classifies large exact-input swaps, checks NFT holdings for fee discounts (0.20% normal / 0.80% guarded), stores traderRiskScore, emits GuardedSwap, and returns a dynamic fee override with a 0.50% hook fee via BeforeSwapDelta for dynamic-fee pools. afterSwap mints an ERC-721 PixelGuard receipt NFT to the trader, stores receipt metadata including an on-chain seed, updates a staking accumulator (rewardPerShare and claimDebt) for pro-rata treasury yield distribution, calls poolManager.take() to withdraw hook fees into the contract treasury, emits PixelReceiptMinted, and increments guardReserve. NFT holders can call claim() to withdraw accrued yield dividends. The submitted pool uses a dynamic-fee Uniswap v4 pool on X Layer mainnet (chain id 196). The project includes Foundry tests proving real v4 swap-triggered minting, tokenURI/SVG generation, reserve accounting, large-swap risk behavior, NFT fee discounts, hook fee collection, reward claiming, and receipt transfer/approval flows.
 ```
 
 ## One-Line Pitch
@@ -29,7 +29,7 @@ Every swap leaves a pixel. Risky exits fund the guard.
 ## Innovation
 
 ```text
-PixelGuard combines two proven Hook ideas in one simple, demo-ready product: viral swap receipts and guarded dynamic fee behavior. A normal swap mints a fully on-chain pixel receipt, making the Hook visible and shareable. A large swap triggers beforeSwap risk classification and a higher fee override, making the Hook economically meaningful for launch-style and meme pools.
+PixelGuard combines dynamic LP protection with custom hook-fee yield accumulation and transaction-encoded NFT discounts. A normal swap mints a fully on-chain SVG receipt NFT. Large swaps trigger beforeSwap classification, raising the LP fee (1.00%) and taking a 0.50% Hook Fee to the contract treasury. Receipt holders can claim their pro-rata yield share from the treasury, and holding an NFT discounts future swap fees (0.20% normal / 0.80% large).
 ```
 
 ## Market Value
@@ -41,7 +41,7 @@ Meme and launch pools need visible proof of activity, user-retainable receipts, 
 ## Completion Evidence
 
 ```text
-The repository includes the Hook contract, Foundry tests, X Layer deployment scripts, pool creation scripts, swap trigger scripts, an on-chain state reader, OKLink verification command, demo video script, submission checklist, and generated copy/paste submission pack. Local audit passes with 17 tests, forge build, forge fmt --check, PowerShell syntax checks, and submission pack generation.
+The repository includes the Hook contract, Foundry tests, X Layer deployment scripts, pool creation scripts, swap trigger scripts, an on-chain state reader, OKLink verification command, demo video script, submission checklist, and generated copy/paste submission pack. Local audit passes with 20 tests, forge build, forge fmt --check, PowerShell syntax checks, and submission pack generation.
 ```
 
 ## Network
@@ -76,6 +76,6 @@ X submission post: [X_SUBMISSION_POST_URL]
 ## Safety Note
 
 ```text
-PixelGuard is a hackathon prototype. The guarded fee and reserve counter are visible Hook-native primitives for demonstration, not a guarantee of price protection, refunds, or yield.
+PixelGuard is a hackathon prototype. The guarded fee, reserve counter, treasury yield accumulator, and NFT fee discount are visible Hook-native primitives for demonstration, not a guarantee of price protection, refunds, or yield.
 ```
 

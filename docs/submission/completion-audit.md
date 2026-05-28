@@ -67,7 +67,7 @@ After deployment, `tools/pixelguard-readiness.ps1` additionally checks filled su
 Expected test result:
 
 ```text
-17 tests passed, 0 failed, 0 skipped
+20 tests passed, 0 failed, 0 skipped
 ```
 
 ## Final Owner Actions

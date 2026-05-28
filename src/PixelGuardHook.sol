@@ -10,7 +10,11 @@ import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
 import {PoolId, PoolIdLibrary} from "@uniswap/v4-core/src/types/PoolId.sol";
 import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
 import {BalanceDelta} from "@uniswap/v4-core/src/types/BalanceDelta.sol";
-import {BeforeSwapDelta, BeforeSwapDeltaLibrary} from "@uniswap/v4-core/src/types/BeforeSwapDelta.sol";
+import {
+    BeforeSwapDelta,
+    BeforeSwapDeltaLibrary,
+    toBeforeSwapDelta
+} from "@uniswap/v4-core/src/types/BeforeSwapDelta.sol";
 
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
@@ -32,6 +36,10 @@ contract PixelGuardHook is BaseHook {
 
     uint24 public constant STANDARD_LP_FEE = 3000;
     uint24 public constant GUARDED_LP_FEE = 10000;
+
+    uint24 public constant DISCOUNTED_LP_FEE = 2000; // 0.20%
+    uint24 public constant DISCOUNTED_GUARDED_LP_FEE = 8000; // 0.80%
+    uint24 public constant GUARDED_HOOK_FEE = 50; // 0.50% Hook Fee
 
     uint16 public constant BASE_GUARD_UNITS = 10;
     uint16 public constant STANDARD_RISK_SCORE = 0;
@@ -64,6 +72,14 @@ contract PixelGuardHook is BaseHook {
     mapping(PoolId poolId => uint256 reserveUnits) public guardReserve;
     mapping(PoolId poolId => uint24 fee) public lastFeeOverride;
     mapping(PoolId poolId => mapping(address trader => uint16 score)) public traderRiskScore;
+
+    mapping(PoolId poolId => mapping(Currency currency => uint256)) public rewardPerShare;
+    mapping(uint256 tokenId => mapping(Currency currency => uint256)) public claimDebt;
+
+    mapping(PoolId poolId => mapping(address trader => uint256 amount)) public pendingHookFee;
+    mapping(PoolId poolId => mapping(address trader => Currency currency)) public pendingHookFeeCurrency;
+
+    event RewardClaimed(uint256 indexed tokenId, address indexed owner, address indexed token, uint256 amount);
 
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
     event Approval(address indexed owner, address indexed spender, uint256 indexed tokenId);
@@ -111,7 +127,7 @@ contract PixelGuardHook is BaseHook {
             afterSwap: true,
             beforeDonate: false,
             afterDonate: false,
-            beforeSwapReturnDelta: false,
+            beforeSwapReturnDelta: true,
             afterSwapReturnDelta: false,
             afterAddLiquidityReturnDelta: false,
             afterRemoveLiquidityReturnDelta: false
@@ -234,7 +250,7 @@ contract PixelGuardHook is BaseHook {
         returns (bytes4, BeforeSwapDelta, uint24)
     {
         PoolId poolId = key.toId();
-        address trader = _trader(sender, hookData);
+        (address trader, uint256 tokenId) = _parseHookData(sender, hookData);
         uint256 swapIndex = beforeSwapCount[poolId] + 1;
         uint256 amount = _abs(params.amountSpecified);
 
@@ -248,13 +264,34 @@ contract PixelGuardHook is BaseHook {
         uint256 threshold = 5 * (10 ** dec);
 
         uint16 riskScore = amount >= threshold ? LARGE_SWAP_RISK_SCORE : STANDARD_RISK_SCORE;
-        uint24 fee = riskScore == LARGE_SWAP_RISK_SCORE ? GUARDED_LP_FEE : STANDARD_LP_FEE;
+
+        bool hasDiscount = (tokenId > 0 && _ownerOf[tokenId] == trader);
+        uint24 fee = riskScore == LARGE_SWAP_RISK_SCORE
+            ? (hasDiscount ? DISCOUNTED_GUARDED_LP_FEE : GUARDED_LP_FEE)
+            : (hasDiscount ? DISCOUNTED_LP_FEE : STANDARD_LP_FEE);
 
         traderRiskScore[poolId][trader] = riskScore;
         lastFeeOverride[poolId] = fee;
 
         if (riskScore != STANDARD_RISK_SCORE) {
             emit GuardedSwap(poolId, trader, swapIndex, amount, riskScore);
+        }
+
+        uint256 feeAmount = 0;
+        if (riskScore == LARGE_SWAP_RISK_SCORE && params.amountSpecified < 0) {
+            feeAmount = amount * GUARDED_HOOK_FEE / 10000;
+        }
+
+        if (feeAmount > 0) {
+            pendingHookFee[poolId][trader] = feeAmount;
+            pendingHookFeeCurrency[poolId][trader] = specifiedCurrency;
+
+            uint256 totalShares = afterSwapCount[poolId];
+            uint256 shares = totalShares == 0 ? 1 : totalShares;
+            rewardPerShare[poolId][specifiedCurrency] += (feeAmount * 1e18) / shares;
+
+            BeforeSwapDelta delta = toBeforeSwapDelta(int128(uint128(feeAmount)), 0);
+            return (BaseHook.beforeSwap.selector, delta, fee | LPFeeLibrary.OVERRIDE_FEE_FLAG);
         }
 
         return (BaseHook.beforeSwap.selector, BeforeSwapDeltaLibrary.ZERO_DELTA, fee | LPFeeLibrary.OVERRIDE_FEE_FLAG);
@@ -279,7 +316,7 @@ contract PixelGuardHook is BaseHook {
         bytes calldata hookData
     ) internal override returns (bytes4, int128) {
         PoolId poolId = key.toId();
-        address trader = _trader(sender, hookData);
+        (address trader,) = _parseHookData(sender, hookData);
         uint256 swapIndex = ++afterSwapCount[poolId];
         uint16 guardScore = traderRiskScore[poolId][trader];
 
@@ -298,17 +335,66 @@ contract PixelGuardHook is BaseHook {
 
         guardReserve[poolId] += BASE_GUARD_UNITS + uint256(guardScore);
 
+        claimDebt[tokenId][key.currency0] = rewardPerShare[poolId][key.currency0];
+        claimDebt[tokenId][key.currency1] = rewardPerShare[poolId][key.currency1];
+
+        uint256 feeAmount = pendingHookFee[poolId][trader];
+        if (feeAmount > 0) {
+            Currency specifiedCurrency = pendingHookFeeCurrency[poolId][trader];
+            poolManager.take(specifiedCurrency, address(this), feeAmount);
+            delete pendingHookFee[poolId][trader];
+            pendingHookFeeCurrency[poolId][trader] = Currency.wrap(address(0));
+        }
+
         emit Transfer(address(0), trader, tokenId);
         emit PixelReceiptMinted(poolId, trader, tokenId, swapIndex, guardScore);
 
         return (BaseHook.afterSwap.selector, 0);
     }
 
-    function _trader(address sender, bytes calldata hookData) internal pure returns (address trader) {
-        if (hookData.length >= 32) {
+    function _parseHookData(address sender, bytes calldata hookData)
+        internal
+        pure
+        returns (address trader, uint256 tokenId)
+    {
+        if (hookData.length >= 64) {
+            (trader, tokenId) = abi.decode(hookData, (address, uint256));
+        } else if (hookData.length >= 32) {
             trader = abi.decode(hookData, (address));
+            tokenId = 0;
         } else {
             trader = sender;
+            tokenId = 0;
+        }
+    }
+
+    function claim(uint256 tokenId, PoolKey calldata key) external {
+        address owner = ownerOf(tokenId);
+        require(msg.sender == owner, "PXG: not owner");
+
+        Receipt memory receipt = receipts[tokenId];
+        require(PoolId.unwrap(key.toId()) == PoolId.unwrap(receipt.poolId), "PXG: invalid pool key");
+
+        _claimCurrency(tokenId, owner, receipt.poolId, key.currency0);
+        _claimCurrency(tokenId, owner, receipt.poolId, key.currency1);
+    }
+
+    function _claimCurrency(uint256 tokenId, address owner, PoolId poolId, Currency currency) internal {
+        uint256 currentRewardPerShare = rewardPerShare[poolId][currency];
+        uint256 debt = claimDebt[tokenId][currency];
+        if (currentRewardPerShare > debt) {
+            uint256 pending = ((currentRewardPerShare - debt) * 1) / 1e18;
+            claimDebt[tokenId][currency] = currentRewardPerShare;
+            if (pending > 0) {
+                if (currency.isAddressZero()) {
+                    payable(owner).transfer(pending);
+                } else {
+                    require(
+                        IERC20Minimal(Currency.unwrap(currency)).transfer(owner, pending), "PXG: claim transfer failed"
+                    );
+                }
+                emit RewardClaimed(tokenId, owner, Currency.unwrap(currency), pending);
+            }
         }
     }
 

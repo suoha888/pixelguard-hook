@@ -98,7 +98,7 @@ Video: [DEMO_VIDEO_URL]
 
 ```text
 PixelGuard local audit:
-17 tests passed
+20 tests passed
 forge build passed
 forge fmt --check passed
 

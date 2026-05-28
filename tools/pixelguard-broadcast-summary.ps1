@@ -21,17 +21,33 @@ function Read-BroadcastFile {
     if ($json.transactions) {
         $txs = @($json.transactions)
     }
+    $receipts = @()
+    if ($json.receipts) {
+        $receipts = @($json.receipts)
+    }
 
     [pscustomobject]@{
         Script       = $File.Directory.Parent.Name
         File         = $File.FullName
         LastWrite    = $File.LastWriteTime
         Transactions = $txs
+        Receipts     = $receipts
     }
 }
 
 function Get-TxHash {
-    param($Tx)
+    param(
+        $Tx,
+        $Run = $null,
+        [int]$Index = -1
+    )
+
+    if ($Run -and $Index -ge 0 -and $Run.Receipts -and $Run.Receipts.Count -gt $Index) {
+        $receiptHash = $Run.Receipts[$Index].transactionHash
+        if ($receiptHash) {
+            return $receiptHash
+        }
+    }
 
     if ($Tx.hash) {
         return $Tx.hash
@@ -97,8 +113,9 @@ foreach ($run in $runs) {
     Write-Host "$($run.Script) :: $($run.LastWrite)" -ForegroundColor Cyan
     Write-Host $run.File
 
-    foreach ($tx in $run.Transactions) {
-        $hash = Get-TxHash $tx
+    for ($i = 0; $i -lt $run.Transactions.Count; $i++) {
+        $tx = $run.Transactions[$i]
+        $hash = Get-TxHash $tx $run $i
         $contract = Get-ContractAddress $tx
         $name = $tx.contractName
         $type = $tx.transactionType
@@ -106,6 +123,9 @@ foreach ($run in $runs) {
 
         if ($hash) {
             Write-Host "  tx: $hash"
+            if ($tx.hash -and $tx.hash -ne $hash) {
+                Write-Host "  note: using receipt transactionHash; broadcast tx.hash was $($tx.hash)" -ForegroundColor Yellow
+            }
         }
         if ($contract) {
             Write-Host "  contract: $contract $name"
@@ -129,7 +149,7 @@ $lines = [System.Collections.Generic.List[string]](Get-Content $ResultsPath)
 $demoRun = $runs | Where-Object { $_.Script -eq "00_DeployDemoTokens.s.sol" } | Select-Object -Last 1
 if ($demoRun) {
     $demoContracts = @($demoRun.Transactions | ForEach-Object { Get-ContractAddress $_ } | Where-Object { $_ })
-    $demoTx = Get-TxHash ($demoRun.Transactions | Select-Object -First 1)
+    $demoTx = Get-TxHash ($demoRun.Transactions | Select-Object -First 1) $demoRun 0
     if ($demoContracts.Count -ge 1) { $lines = Update-ResultField $lines "Demo token A" $demoContracts[0] }
     if ($demoContracts.Count -ge 2) { $lines = Update-ResultField $lines "Demo token B" $demoContracts[1] }
     $lines = Update-ResultField $lines "Demo token deploy tx" $demoTx
@@ -139,7 +159,7 @@ $routerRun = $runs | Where-Object { $_.Script -eq "00_DeployHookmateRouter.s.sol
 if ($routerRun) {
     $routerTx = $routerRun.Transactions | Select-Object -First 1
     $lines = Update-ResultField $lines "Hookmate demo router" (Get-ContractAddress $routerTx)
-    $lines = Update-ResultField $lines "Hookmate router deploy tx" (Get-TxHash $routerTx)
+    $lines = Update-ResultField $lines "Hookmate router deploy tx" (Get-TxHash $routerTx $routerRun 0)
 }
 
 $hookRun = $runs | Where-Object { $_.Script -eq "00_DeployHook.s.sol" } | Select-Object -Last 1
@@ -149,25 +169,29 @@ if ($hookRun) {
         $hookTx = $hookRun.Transactions | Select-Object -First 1
     }
     $lines = Update-ResultField $lines "PixelGuard Hook" (Get-ContractAddress $hookTx)
-    $lines = Update-ResultField $lines "Hook deploy tx" (Get-TxHash $hookTx)
+    $hookIndex = [array]::IndexOf(@($hookRun.Transactions), $hookTx)
+    $lines = Update-ResultField $lines "Hook deploy tx" (Get-TxHash $hookTx $hookRun $hookIndex)
 }
 
 $poolRun = $runs | Where-Object { $_.Script -eq "01_CreatePoolAndAddLiquidity.s.sol" } | Select-Object -Last 1
 if ($poolRun) {
     $poolTx = $poolRun.Transactions | Select-Object -Last 1
-    $lines = Update-ResultField $lines "Pool initialize/add-liquidity tx" (Get-TxHash $poolTx)
+    $poolIndex = [array]::IndexOf(@($poolRun.Transactions), $poolTx)
+    $lines = Update-ResultField $lines "Pool initialize/add-liquidity tx" (Get-TxHash $poolTx $poolRun $poolIndex)
 }
 
 $swapRuns = @($runs | Where-Object { $_.Script -eq "03_Swap.s.sol" })
 if ($swapRuns.Count -ge 1) {
     $normalRun = $swapRuns | Select-Object -First 1
     $normalTx = $normalRun.Transactions | Select-Object -Last 1
-    $lines = Update-ResultField $lines "Demo swap tx" (Get-TxHash $normalTx)
+    $normalIndex = [array]::IndexOf(@($normalRun.Transactions), $normalTx)
+    $lines = Update-ResultField $lines "Demo swap tx" (Get-TxHash $normalTx $normalRun $normalIndex)
 }
 if ($swapRuns.Count -ge 2) {
     $largeRun = $swapRuns | Select-Object -Last 1
     $largeTx = $largeRun.Transactions | Select-Object -Last 1
-    $lines = Update-ResultField $lines "Guarded large swap tx" (Get-TxHash $largeTx)
+    $largeIndex = [array]::IndexOf(@($largeRun.Transactions), $largeTx)
+    $lines = Update-ResultField $lines "Guarded large swap tx" (Get-TxHash $largeTx $largeRun $largeIndex)
 }
 
 Set-Content -LiteralPath $ResultsPath -Value $lines -Encoding utf8

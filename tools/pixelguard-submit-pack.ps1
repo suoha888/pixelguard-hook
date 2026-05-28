@@ -177,7 +177,7 @@ PixelGuard is a Uniswap v4 Hook deployed on $network. A normal swap triggers bef
 
 ## Demo Screen Checklist
 
-- Local audit: show 17 tests passing.
+- Local audit: show 20 tests passing.
 - Hook explorer page: $hookUrl
 - Pool/swap explorer page: $poolUrl
 - Normal swap tx: $normalSwap

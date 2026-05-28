@@ -3,125 +3,1988 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PixelGuard Receipt Viewer</title>
+    <title>PixelGuard - Yield-Bearing Swap Receipts</title>
+    <!-- Google Fonts for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Ethers.js CDN for robust Web3 connectivity -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
     <style>
       :root {
-        color-scheme: dark;
-        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #0f172a;
-        color: #e5e7eb;
+        --bg-main: #060913;
+        --card-bg: rgba(13, 20, 38, 0.65);
+        --card-border: rgba(255, 255, 255, 0.08);
+        --card-hover-border: rgba(99, 102, 241, 0.35);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --primary-purple: #a855f7;
+        --primary-indigo: #6366f1;
+        --accent-emerald: #10b981;
+        --accent-amber: #f97316;
+        --accent-rose: #f43f5e;
+        --glow-color: rgba(99, 102, 241, 0.15);
+      }
+
+      * {
+        box-sizing: border-box;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       body {
         margin: 0;
         min-height: 100vh;
-        display: grid;
-        place-items: center;
-        padding: 32px;
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-image: 
+          radial-gradient(circle at 5% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+          radial-gradient(circle at 95% 85%, rgba(168, 85, 247, 0.12) 0%, transparent 45%),
+          radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.03) 0%, transparent 50%);
+        background-attachment: fixed;
+        padding: 40px 20px;
+        overflow-x: hidden;
       }
 
-      main {
-        width: min(920px, 100%);
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) 260px;
-        gap: 24px;
-        align-items: start;
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #060913;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgba(99, 102, 241, 0.3);
+      }
+
+      .app-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      /* Header styling */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 50px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding-bottom: 24px;
+      }
+
+      .logo-group {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .logo-icon {
+        width: 42px;
+        height: 42px;
+        background: linear-gradient(135deg, var(--primary-indigo), var(--primary-purple));
+        border-radius: 12px;
+        box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .logo-icon::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        background: #fff;
+        top: 8px;
+        left: 8px;
+        border-radius: 3px;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
       }
 
       h1 {
-        margin: 0 0 12px;
+        font-family: 'Outfit', sans-serif;
         font-size: 28px;
+        font-weight: 900;
+        margin: 0;
+        letter-spacing: -0.02em;
+        background: linear-gradient(to right, #ffffff, #c7d2fe, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
       }
 
-      p {
-        margin: 0 0 18px;
-        color: #94a3b8;
-      }
-
-      textarea {
-        width: 100%;
-        min-height: 280px;
-        box-sizing: border-box;
-        resize: vertical;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 14px;
-        background: #020617;
-        color: #e5e7eb;
-        font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
-      }
-
-      button {
-        margin-top: 12px;
-        border: 0;
-        border-radius: 8px;
-        padding: 10px 14px;
-        background: #22c55e;
-        color: #052e16;
+      .brand-badge {
+        font-size: 11px;
+        background: rgba(168, 85, 247, 0.15);
+        border: 1px solid rgba(168, 85, 247, 0.3);
+        color: #d8b4fe;
+        padding: 3px 8px;
+        border-radius: 20px;
         font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        margin-left: 8px;
+      }
+
+      .network-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--card-border);
+        padding: 8px 16px;
+        border-radius: 30px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background-color: var(--accent-emerald);
+        border-radius: 50%;
+        box-shadow: 0 0 12px var(--accent-emerald);
+        animation: pulse 1.8s infinite;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        text-align: center;
+        max-width: 850px;
+        margin: 0 auto 60px auto;
+      }
+
+      .hero-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 52px;
+        font-weight: 900;
+        line-height: 1.15;
+        letter-spacing: -0.03em;
+        margin-bottom: 20px;
+        background: linear-gradient(to bottom, #ffffff 40%, #a5b4fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .hero-subtitle {
+        color: var(--text-secondary);
+        font-size: 18px;
+        line-height: 1.6;
+        margin-bottom: 30px;
+      }
+
+      .highlight-text {
+        color: var(--primary-indigo);
+        font-weight: 700;
+      }
+
+      /* Product Flow Cards */
+      .feature-flow {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        margin-bottom: 60px;
+      }
+
+      .flow-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 30px;
+        backdrop-filter: blur(20px);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .flow-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(to right, var(--primary-indigo), var(--primary-purple));
+        opacity: 0.6;
+      }
+
+      .flow-step-num {
+        font-family: 'Outfit', sans-serif;
+        font-size: 36px;
+        font-weight: 800;
+        color: rgba(99, 102, 241, 0.2);
+        margin-bottom: 12px;
+      }
+
+      .flow-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 12px 0;
+      }
+
+      .flow-desc {
+        color: var(--text-secondary);
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0;
+      }
+
+      /* Mainnet Dashboard Stats */
+      .dashboard-banner {
+        background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 60%), var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 28px;
+        padding: 32px;
+        backdrop-filter: blur(20px);
+        margin-bottom: 50px;
+      }
+
+      .dashboard-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 22px;
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .dash-stat {
+        background: rgba(2, 6, 23, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 16px;
+        padding: 20px;
+      }
+
+      .dash-label {
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-secondary);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 8px;
+      }
+
+      .dash-value {
+        font-family: 'Outfit', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        color: #fff;
+        word-break: break-all;
+      }
+
+      .dash-link {
+        color: var(--accent-amber);
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .dash-link:hover {
+        text-decoration: underline;
+        color: #fff;
+      }
+
+      /* Tabs container */
+      .tabs-header {
+        display: flex;
+        gap: 12px;
+        background: rgba(13, 20, 38, 0.4);
+        padding: 8px;
+        border-radius: 16px;
+        border: 1px solid var(--card-border);
+        margin-bottom: 30px;
+      }
+
+      .tab-btn {
+        flex: 1;
+        background: transparent;
+        border: 0;
+        border-radius: 12px;
+        padding: 14px 20px;
+        color: var(--text-secondary);
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-weight: 700;
+        font-size: 14px;
         cursor: pointer;
       }
 
-      figure {
-        margin: 0;
-        padding: 18px;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        background: #020617;
+      .tab-btn:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.03);
       }
 
-      img {
-        width: 224px;
-        height: 224px;
-        image-rendering: pixelated;
-        border: 1px solid #334155;
-        background: #111827;
+      .tab-btn.active {
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary-indigo), var(--primary-purple));
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.35);
       }
 
-      figcaption {
-        margin-top: 12px;
-        color: #94a3b8;
+      /* Content panels */
+      .tab-content {
+        display: none;
+        animation: fadeIn 0.4s ease forwards;
+      }
+
+      .tab-content.active {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      @media (min-width: 900px) {
+        .tab-content.active.split-panel {
+          grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.85fr);
+        }
+      }
+
+      /* Panels */
+      .control-panel {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 30px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      }
+
+      .panel-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 0;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+      }
+
+      .form-label {
+        display: block;
         font-size: 13px;
-        overflow-wrap: anywhere;
+        font-weight: 600;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+        letter-spacing: 0.02em;
       }
+
+      .input-wrapper {
+        display: flex;
+        gap: 12px;
+      }
+
+      input[type="text"], input[type="number"], select, textarea {
+        flex: 1;
+        background: rgba(2, 6, 23, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 14px 18px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 14px;
+      }
+
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: var(--primary-indigo);
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.35);
+      }
+
+      textarea {
+        min-height: 180px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        line-height: 1.6;
+        resize: vertical;
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, var(--primary-indigo), var(--primary-purple));
+        border: 0;
+        color: #fff;
+        font-weight: 700;
+        padding: 14px 28px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 14px;
+        box-shadow: 0 6px 18px rgba(99, 102, 241, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.45);
+      }
+
+      .btn-primary:active {
+        transform: translateY(0);
+      }
+
+      .quick-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .quick-link-tag {
+        font-size: 12px;
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        color: #a5b4fc;
+        padding: 6px 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .quick-link-tag:hover {
+        background: rgba(99, 102, 241, 0.3);
+        color: #fff;
+        border-color: var(--primary-indigo);
+      }
+
+      /* Preview Frame */
+      .preview-panel {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 30px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 420px;
+        position: relative;
+      }
+
+      .card-glow {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .card-glow::before {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: 20px;
+        right: 20px;
+        bottom: -20px;
+        background: var(--glow-color);
+        filter: blur(40px);
+        border-radius: 30px;
+        z-index: 0;
+        opacity: 0.85;
+      }
+
+      .receipt-card {
+        width: 280px;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 20px;
+        padding: 20px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        z-index: 1;
+        position: relative;
+        transform-style: preserve-3d;
+        cursor: pointer;
+      }
+
+      .receipt-card:hover {
+        transform: scale(1.03) rotateY(4deg);
+      }
+
+      .receipt-image-container {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: #161b22;
+        image-rendering: pixelated;
+        margin-bottom: 18px;
+        overflow: hidden;
+      }
+
+      .receipt-image-container svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .receipt-title {
+        font-family: 'Outfit', sans-serif;
+        font-size: 20px;
+        font-weight: 800;
+        margin: 0 0 14px 0;
+        letter-spacing: -0.01em;
+      }
+
+      .trait-list {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .trait-item {
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        background: rgba(255,255,255,0.03);
+        padding: 8px 12px;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.05);
+      }
+
+      .trait-name {
+        color: var(--text-secondary);
+        font-weight: 600;
+      }
+
+      .trait-val {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: var(--text-secondary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        z-index: 1;
+      }
+
+      .empty-icon {
+        font-size: 54px;
+        opacity: 0.65;
+      }
+
+      /* Gallery / Examples Grid */
+      .examples-section {
+        margin-top: 50px;
+        margin-bottom: 50px;
+      }
+
+      .section-heading {
+        font-family: 'Outfit', sans-serif;
+        font-size: 24px;
+        font-weight: 800;
+        margin-top: 0;
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+      }
+
+      .gallery-card {
+        background: rgba(13, 20, 38, 0.4);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 16px;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+      }
+
+      .gallery-card:hover {
+        border-color: var(--card-hover-border);
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
+      }
+
+      .gallery-img-container {
+        width: 100%;
+        aspect-ratio: 1;
+        border-radius: 10px;
+        background: #161b22;
+        border: 1px solid rgba(255,255,255,0.06);
+        margin-bottom: 14px;
+        overflow: hidden;
+      }
+
+      .gallery-img-container svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .gallery-title {
+        font-size: 16px;
+        font-weight: 800;
+        margin: 0 0 8px 0;
+      }
+
+      .gallery-meta {
+        font-size: 12px;
+        color: var(--text-secondary);
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* Loader */
+      .loader {
+        width: 44px;
+        height: 44px;
+        border: 4px solid rgba(99, 102, 241, 0.1);
+        border-radius: 50%;
+        border-top-color: var(--primary-indigo);
+        animation: spin 0.8s linear infinite;
+        margin-bottom: 16px;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.25); opacity: 0.6; }
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .toast {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        background: rgba(16, 185, 129, 0.95);
+        color: #fff;
+        padding: 14px 28px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        font-size: 14px;
+        font-weight: 700;
+        z-index: 1000;
+        opacity: 0;
+        transform: translateY(15px);
+        pointer-events: none;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      /* Slider Styling */
+      .slider-container {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      
+      .slider-container input[type="range"] {
+        flex: 1;
+        accent-color: var(--primary-indigo);
+        height: 6px;
+        border-radius: 3px;
+        background: rgba(255,255,255,0.1);
+        cursor: pointer;
+      }
+
+      .slider-value {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 700;
+        background: rgba(99, 102, 241, 0.15);
+        color: #a5b4fc;
+        padding: 4px 10px;
+        border-radius: 6px;
+        min-width: 45px;
+        text-align: center;
+      }
+
+      /* Wallet panel */
+      .wallet-status-bar {
+        display: flex; align-items: center; gap: 12px;
+        background: rgba(2, 6, 23, 0.6); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;
+        font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-secondary);
+      }
+      .wallet-status-bar .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+      .wallet-status-bar .dot.connected { background: var(--accent-emerald); box-shadow: 0 0 8px var(--accent-emerald); }
+      .wallet-status-bar .dot.disconnected { background: var(--accent-rose); }
+      .wallet-status-bar .addr { color: var(--text-primary); font-weight: 600; }
+      .wallet-status-bar .chain { color: var(--accent-amber); font-weight: 600; }
+
+      .balance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+      .balance-card { background: rgba(2,6,23,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px; }
+      .balance-card .bal-label { font-size: 11px; text-transform: uppercase; color: var(--text-secondary); font-weight: 700; letter-spacing: 0.06em; margin-bottom: 6px; }
+      .balance-card .bal-value { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; color: #fff; }
+
+      .nft-list { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow-y: auto; }
+      .nft-row { display: flex; justify-content: space-between; align-items: center; background: rgba(2,6,23,0.5); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 16px; }
+      .nft-row .nft-id { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--text-primary); }
+      .nft-row .nft-score { font-size: 12px; color: var(--text-secondary); }
+      .btn-sm { background: rgba(99,102,241,0.2); border: 1px solid rgba(99,102,241,0.4); color: #a5b4fc; font-weight: 700; padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 12px; font-family: inherit; }
+      .btn-sm:hover { background: rgba(99,102,241,0.4); color: #fff; }
+      .status-msg { font-size: 13px; color: var(--text-secondary); margin-top: 12px; min-height: 20px; font-family: 'JetBrains Mono', monospace; }
+      .status-msg.error { color: var(--accent-rose); }
+      .status-msg.success { color: var(--accent-emerald); }
+
+      footer { margin-top: 60px; padding-top: 30px; padding-bottom: 30px; border-top: 1px solid rgba(255,255,255,0.06); text-align: center; color: var(--text-secondary); font-size: 13px; }
+      footer a { color: var(--primary-indigo); text-decoration: none; font-weight: 600; }
+      footer a:hover { color: #fff; }
+      footer .footer-links { display: flex; justify-content: center; gap: 24px; margin-bottom: 12px; flex-wrap: wrap; }
+      footer .footer-copy { font-size: 11px; opacity: 0.5; }
+
+      .lang-toggle { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); font-weight: 700; font-size: 12px; padding: 6px 14px; border-radius: 20px; cursor: pointer; font-family: inherit; margin-left: 10px; }
+      .lang-toggle:hover { color: #fff; border-color: var(--primary-indigo); }
     </style>
   </head>
   <body>
-    <main>
-      <section>
-        <h1>PixelGuard Receipt Viewer</h1>
-        <p>Paste `tokenURI(tokenId)` output from `script/04_ReadPixelGuard.s.sol` and render the embedded on-chain SVG for the demo video.</p>
-        <textarea id="uri" spellcheck="false" placeholder="data:application/json;utf8,{...}"></textarea>
-        <button type="button" id="render">Render Receipt</button>
-      </section>
-      <figure>
-        <img id="image" alt="PixelGuard receipt preview" />
-        <figcaption id="caption">No receipt loaded.</figcaption>
-      </figure>
-    </main>
-    <script>
-      const textarea = document.getElementById("uri");
-      const image = document.getElementById("image");
-      const caption = document.getElementById("caption");
+    <div class="app-container">
+      <header>
+        <div class="logo-group">
+          <div class="logo-icon"></div>
+          <h1>PixelGuard<span class="brand-badge">Yield Hook</span></h1>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="network-status">
+            <span class="pulse-dot"></span> X Layer Mainnet Active
+          </div>
+          <button class="lang-toggle" onclick="toggleLang()" id="lang-btn">中文</button>
+        </div>
+      </header>
 
-      document.getElementById("render").addEventListener("click", () => {
-        const raw = textarea.value.trim();
+      <!-- HERO SECTION -->
+      <section class="hero-section">
+        <h2 class="hero-title">Every Swap Leaves a Pixel.<br>Risky Exits Fund the Guard.</h2>
+        <p class="hero-subtitle">
+          PixelGuard is a next-generation Uniswap v4 Hook that intercepts large dumps, charges a penalty fee to fund a contract treasury, and mints yield-bearing on-chain collectible NFT receipts to traders.
+        </p>
+      </section>
+
+      <!-- WORKING PRINCIPLE FLOW -->
+      <section class="feature-flow">
+        <div class="flow-card">
+          <div class="flow-step-num">01</div>
+          <h3 class="flow-title">Swap & Intercept</h3>
+          <p class="flow-desc">
+            Traders trade on the PixelGuard pool. If a swap size is large (>= 5 tokens), it triggers a penalty LP fee (1.00%) and a **0.50% Hook Fee** to protect liquidity.
+          </p>
+        </div>
+        <div class="flow-card">
+          <div class="flow-step-num">02</div>
+          <h3 class="flow-title">Yield Accumulation</h3>
+          <p class="flow-desc">
+            The 0.50% Hook Fee is directed into the contract's treasury. An automated staking accumulator (`rewardPerShare`) calculates dividends for all receipt holders.
+          </p>
+        </div>
+        <div class="flow-card">
+          <div class="flow-step-num">03</div>
+          <h3 class="flow-title">Claim & Discount</h3>
+          <p class="flow-desc">
+            NFT receipt holders claim accrued yield at any time. Holding the NFT also triggers an LP fee discount to **0.20%** (normal) and **0.80%** (guarded) for future swaps.
+          </p>
+        </div>
+      </section>
+
+      <!-- LIVE CONTRACT SUMMARY -->
+      <section class="dashboard-banner">
+        <h3 class="dashboard-title">📊 Live Contract Dashboard</h3>
+        <div class="dashboard-grid">
+          <div class="dash-stat">
+            <div class="dash-label">Hook Address</div>
+            <div class="dash-value">
+              <a href="https://www.oklink.com/xlayer/address/0x54facbb2bfe6c818fe8087a6d86557b73fb600c0" target="_blank" class="dash-link">0x54fa...00c0</a>
+            </div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-label">Pool ID (PXG-A / PXG-B)</div>
+            <div class="dash-value" style="font-size: 13px; font-family: 'JetBrains Mono', monospace;" id="dash-pool-id">0xe20b00508f7a552a132e...5fa282771d5c</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-label">Total Receipts Minted</div>
+            <div class="dash-value" id="dash-total-supply">Fetching...</div>
+          </div>
+          <div class="dash-stat">
+            <div class="dash-label">Treasury Accumulated (Token A)</div>
+            <div class="dash-value" id="dash-treasury-a">Fetching...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABS HEADER -->
+      <div class="tabs-header">
+        <button class="tab-btn active" onclick="switchTab('tab-sandbox')">Interactive Simulator</button>
+        <button class="tab-btn" onclick="switchTab('tab-onchain')">On-Chain ID Search</button>
+        <button class="tab-btn" onclick="switchTab('tab-trader')">Trader Portfolio</button>
+        <button class="tab-btn" onclick="switchTab('tab-offline')">Offline URI Parser</button>
+        <button class="tab-btn" onclick="switchTab('tab-wallet')" id="tab-btn-wallet">Wallet</button>
+        <button class="tab-btn" onclick="switchTab('tab-swapclaim')" id="tab-btn-swapclaim">Swap / Claim</button>
+      </div>
+
+      <!-- TAB: SANDBOX (SIMULATOR) -->
+      <div id="tab-sandbox" class="tab-content active split-panel">
+        <div class="control-panel">
+          <h2 class="panel-title">🎮 Receipt Generator Sandbox</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+            Adjust the swap parameters below. The browser will run the exact seed hashing and SVG generation logic from the smart contract to redraw the NFT receipt in real time.
+          </p>
+
+          <div class="form-group">
+            <label class="form-label" for="sim-address">Trader Address</label>
+            <input type="text" id="sim-address" value="0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a" spellcheck="false" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sim-swap-index">Swap Index (Counter)</label>
+            <input type="number" id="sim-swap-index" value="3" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sim-block">Block Number</label>
+            <input type="number" id="sim-block" value="61171450" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Guard Status / Score</label>
+            <div class="slider-container">
+              <input type="range" id="sim-guard-score" min="0" max="75" step="75" value="0" oninput="updateSimSliderVal(this.value)" />
+              <span class="slider-value" id="sim-slider-val">0</span>
+            </div>
+            <div class="quick-links" style="margin-top: 10px;">
+              <span class="quick-link-tag" onclick="quickSetSimGuard(0)">Normal (0)</span>
+              <span class="quick-link-tag" onclick="quickSetSimGuard(75)">Guarded (75)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-panel" id="preview-panel-sim">
+          <div class="card-glow" id="sim-glow-container">
+            <div class="receipt-card" id="sim-card-element">
+              <div class="receipt-image-container" id="sim-svg-container">
+                <!-- SVG injected dynamically -->
+              </div>
+              <div class="receipt-title" id="sim-card-title">PixelGuard #1</div>
+              <div class="trait-list" id="sim-traits-list">
+                <!-- Traits injected dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: ON-CHAIN SEARCH -->
+      <div id="tab-onchain" class="tab-content split-panel">
+        <div class="control-panel">
+          <h2 class="panel-title">🔎 Retrieve On-Chain Receipt</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+            Queries the X Layer blockchain RPC directly to fetch the real-time SVG image and traits stored inside the hook.
+          </p>
+          
+          <div class="form-group">
+            <label class="form-label" for="onchain-token-id">Receipt Token ID</label>
+            <div class="input-wrapper">
+              <input type="number" id="onchain-token-id" placeholder="Enter Token ID (e.g. 1, 2)" value="2" />
+              <button class="btn-primary" id="btn-fetch-onchain">Fetch NFT</button>
+            </div>
+            <div class="quick-links">
+              <span class="quick-link-tag" onclick="quickFillOnchain(1)">ID #1 (Normal Swap)</span>
+              <span class="quick-link-tag" onclick="quickFillOnchain(2)">ID #2 (Guarded Swap)</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 16px;">
+            <div class="dash-label">RPC Endpoint Used</div>
+            <input type="text" id="rpc-endpoint" value="https://rpc.xlayer.tech" style="font-size: 12px; margin-bottom: 12px;" />
+            <div class="dash-label">Hook Contract Address</div>
+            <input type="text" id="contract-address" value="0x54facbb2bfe6c818fe8087a6d86557b73fb600c0" style="font-size: 12px;" />
+          </div>
+        </div>
+
+        <div class="preview-panel" id="preview-panel-onchain">
+          <div class="empty-state" id="onchain-empty">
+            <span class="empty-icon">🖼️</span>
+            <span>Enter a Token ID and click fetch to render.</span>
+          </div>
+          <div class="card-glow" id="onchain-card-container" style="display: none;">
+            <div class="receipt-card">
+              <div class="receipt-image-container" id="onchain-img-container">
+                <!-- SVG loaded dynamically -->
+              </div>
+              <div class="receipt-title" id="onchain-title">PixelGuard #2</div>
+              <div class="trait-list" id="onchain-traits"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: TRADER PORTFOLIO -->
+      <div id="tab-trader" class="tab-content">
+        <div class="control-panel">
+          <h2 class="panel-title">💼 Trader NFT Portfolio</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+            Enumerates all swap receipt NFTs owned by a specific trader address using the hook's index registry.
+          </p>
+          
+          <div class="form-group">
+            <label class="form-label" for="trader-address">Trader Wallet Address</label>
+            <div class="input-wrapper">
+              <input type="text" id="trader-address" placeholder="0x..." value="0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a" />
+              <button class="btn-primary" id="btn-fetch-trader">Fetch Portfolio</button>
+            </div>
+            <div class="quick-links">
+              <span class="quick-link-tag" onclick="quickFillTrader('0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a')">Deployer Wallet (0x34Ff...433a)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-panel" id="preview-panel-trader" style="min-height: 250px;">
+          <div class="empty-state" id="trader-empty">
+            <span class="empty-icon">📂</span>
+            <span>Enter a trader address to load receipts.</span>
+          </div>
+          <div class="gallery-grid" id="trader-gallery" style="display: none;"></div>
+        </div>
+      </div>
+
+      <!-- TAB: OFFLINE PARSER -->
+      <div id="tab-offline" class="tab-content split-panel">
+        <div class="control-panel">
+          <h2 class="panel-title">✏️ Local URI Parser</h2>
+          <p class="hero-desc" style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
+            Parses raw Base64-encoded `tokenURI` outputs without making any blockchain requests.
+          </p>
+          
+          <div class="form-group">
+            <label class="form-label" for="offline-uri">Raw JSON Metadata String</label>
+            <textarea id="offline-uri" spellcheck="false" placeholder="Paste data:application/json;utf8,{...} here"></textarea>
+            <button class="btn-primary" id="btn-parse-offline" style="width: 100%; margin-top: 14px;">Parse & Render</button>
+          </div>
+        </div>
+
+        <div class="preview-panel" id="preview-panel-offline">
+          <div class="empty-state" id="offline-empty">
+            <span class="empty-icon">💡</span>
+            <span>Paste raw JSON metadata to render.</span>
+          </div>
+          <div class="card-glow" id="offline-card-container" style="display: none;">
+            <div class="receipt-card">
+              <div class="receipt-image-container" id="offline-img-container">
+                <!-- SVG rendered here -->
+              </div>
+              <div class="receipt-title" id="offline-title">Receipt Preview</div>
+              <div class="trait-list" id="offline-traits"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: WALLET -->
+      <div id="tab-wallet" class="tab-content split-panel">
+        <div class="control-panel">
+          <h2 class="panel-title" data-i18n="wallet_title">🔗 Wallet Connection</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="wallet_desc">Connect your MetaMask wallet to interact with the PixelGuard Hook on X Layer mainnet.</p>
+
+          <div class="wallet-status-bar" id="wallet-status">
+            <span class="dot disconnected" id="wallet-dot"></span>
+            <span id="wallet-status-text">Not connected</span>
+          </div>
+
+          <button class="btn-primary" id="btn-connect-wallet" onclick="connectWallet()" style="width:100%;margin-bottom:20px;" data-i18n="btn_connect">Connect MetaMask</button>
+
+          <div id="wallet-details" style="display:none;">
+            <div class="balance-grid">
+              <div class="balance-card">
+                <div class="bal-label">PXG-A Balance</div>
+                <div class="bal-value" id="wallet-token0-bal">--</div>
+              </div>
+              <div class="balance-card">
+                <div class="bal-label">PXG-B Balance</div>
+                <div class="bal-value" id="wallet-token1-bal">--</div>
+              </div>
+            </div>
+            <div class="balance-grid">
+              <div class="balance-card">
+                <div class="bal-label" data-i18n="label_receipts">Receipts Owned</div>
+                <div class="bal-value" id="wallet-receipt-count">--</div>
+              </div>
+              <div class="balance-card">
+                <div class="bal-label">Guard Reserve</div>
+                <div class="bal-value" id="wallet-guard-reserve">--</div>
+              </div>
+            </div>
+          </div>
+          <div class="status-msg" id="wallet-msg"></div>
+        </div>
+
+        <div class="preview-panel" style="min-height: 300px;">
+          <div class="empty-state" id="wallet-empty">
+            <span class="empty-icon">👛</span>
+            <span data-i18n="wallet_empty">Connect your wallet to see balances and interact with the Hook.</span>
+          </div>
+          <div id="wallet-info-panel" style="display:none;width:100%;">
+            <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:24px;">
+              <h3 style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:700;margin:0 0 16px 0;">Hook Contract</h3>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary);word-break:break-all;margin-bottom:8px;">
+                <span data-i18n="label_address">Address</span>: <span id="wallet-hook-addr" style="color:var(--text-primary);">-</span>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary);word-break:break-all;">
+                PoolId: <span id="wallet-pool-id" style="color:var(--text-primary);">-</span>
+              </div>
+              <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
+                <a class="quick-link-tag" id="wallet-explorer-link" href="#" target="_blank">OKX Explorer</a>
+                <a class="quick-link-tag" href="https://github.com/suoha888/pixelguard-hook" target="_blank">GitHub</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: SWAP / CLAIM -->
+      <div id="tab-swapclaim" class="tab-content split-panel">
+        <div class="control-panel">
+          <h2 class="panel-title" data-i18n="swap_title">💱 Swap &amp; Claim</h2>
+          <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;" data-i18n="swap_desc">Execute swaps through the PixelGuard pool and claim accrued treasury yield.</p>
+
+          <!-- Swap Section -->
+          <div style="border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:20px;margin-bottom:20px;">
+            <h3 style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;margin:0 0 14px 0;" data-i18n="swap_section_title">Execute Swap</h3>
+            <div class="form-group">
+              <label class="form-label" data-i18n="swap_amount_label">Swap Amount (Token A → Token B)</label>
+              <input type="text" id="swap-amount" value="1" />
+              <div class="quick-links" style="margin-top:8px;">
+                <span class="quick-link-tag" onclick="document.getElementById('swap-amount').value='1'">1 (Normal)</span>
+                <span class="quick-link-tag" onclick="document.getElementById('swap-amount').value='5'">5 (Guarded)</span>
+                <span class="quick-link-tag" onclick="document.getElementById('swap-amount').value='10'">10 (Large)</span>
+              </div>
+            </div>
+            <div id="swap-guard-warning" style="display:none;background:rgba(249,115,22,0.1);border:1px solid rgba(249,115,22,0.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--accent-amber);" data-i18n="swap_guard_warning">⚠ Large swap detected. This will trigger Guarded mode (1.00% LP fee + 0.50% hook fee).</div>
+            <div class="form-group">
+              <label class="form-label" data-i18n="swap_nft_discount">NFT Discount (optional)</label>
+              <select id="swap-nft-select">
+                <option value="0" data-i18n="swap_no_discount">No discount (standard fee)</option>
+              </select>
+              <div style="font-size:11px;color:var(--text-secondary);margin-top:6px;" data-i18n="swap_nft_hint">Hold a receipt NFT to get 0.20% / 0.80% discounted LP fees.</div>
+            </div>
+            <button class="btn-primary" id="btn-swap" onclick="executeSwap()" style="width:100%;" data-i18n="btn_swap">Swap (Requires Wallet)</button>
+            <div class="status-msg" id="swap-msg"></div>
+          </div>
+
+          <!-- Claim Section -->
+          <div>
+            <h3 style="font-family:'Outfit',sans-serif;font-size:16px;font-weight:700;margin:0 0 14px 0;" data-i18n="claim_section_title">Claim Treasury Yield</h3>
+            <p style="color:var(--text-secondary);font-size:13px;margin-bottom:14px;" data-i18n="claim_desc">Your receipt NFTs accumulate yield from guarded swap fees. Claim your share below.</p>
+            <div id="claim-nft-list" class="nft-list">
+              <div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:20px;" data-i18n="claim_empty">Connect wallet to see your receipts.</div>
+            </div>
+            <div class="status-msg" id="claim-msg"></div>
+          </div>
+        </div>
+
+        <div class="preview-panel" style="min-height:300px;">
+          <div class="empty-state" id="swapclaim-empty">
+            <span class="empty-icon">⚡</span>
+            <span data-i18n="swapclaim_empty">Connect your wallet, then execute swaps or claim yield here.</span>
+          </div>
+          <div id="swapclaim-result" style="display:none;width:100%;">
+            <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:24px;text-align:center;">
+              <div id="swapclaim-result-icon" style="font-size:48px;margin-bottom:12px;">✅</div>
+              <div id="swapclaim-result-title" style="font-family:'Outfit',sans-serif;font-size:20px;font-weight:700;margin-bottom:8px;">Transaction Confirmed</div>
+              <div id="swapclaim-result-hash" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-secondary);word-break:break-all;margin-bottom:16px;">-</div>
+              <a class="quick-link-tag" id="swapclaim-tx-link" href="#" target="_blank" data-i18n="view_explorer">View on Explorer</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEATURED SHOWCASES -->
+      <section class="examples-section">
+        <h3 class="section-heading">🌟 Live Featured Showcases (X Layer Mainnet)</h3>
+        <div class="gallery-grid" id="featured-grid">
+          <!-- Handcrafted real on-chain examples -->
+          <div class="gallery-card" onclick="loadFeatured(1)">
+            <div class="gallery-img-container" id="featured-svg-1">
+              <!-- Inline SVG 1 -->
+            </div>
+            <div class="gallery-title" style="color: var(--accent-emerald);">PixelGuard #1 (Normal)</div>
+            <div class="gallery-meta">
+              <span>Guard Score: 0</span>
+              <span>LP Fee: 0.30%</span>
+            </div>
+          </div>
+
+          <div class="gallery-card" onclick="loadFeatured(2)">
+            <div class="gallery-img-container" id="featured-svg-2">
+              <!-- Inline SVG 2 -->
+            </div>
+            <div class="gallery-title" style="color: var(--accent-amber);">PixelGuard #2 (Guarded)</div>
+            <div class="gallery-meta">
+              <span>Guard Score: 75</span>
+              <span>LP Fee: 1.00%</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer>
+        <div class="footer-links">
+          <a href="https://github.com/suoha888/pixelguard-hook" target="_blank">GitHub</a>
+          <a href="https://www.oklink.com/xlayer/address/0x54facbb2bfe6c818fe8087a6d86557b73fb600c0" target="_blank">OKX Explorer</a>
+          <a href="https://web3.okx.com/zh-hans/xlayer/build-x-hackathon/hook" target="_blank">OKX Hackathon</a>
+          <a href="https://web3.okx.com/sv/xlayer/docs/developer/build-on-xlayer/network-information" target="_blank">X Layer Docs</a>
+        </div>
+        <div style="margin-bottom:8px;">
+          Built for <strong>OKX Build X Hackathon</strong> — Hook Track on X Layer Mainnet
+        </div>
+        <div class="footer-copy">
+          &copy; 2026 PixelGuard Hook. Every swap leaves a pixel. Risky exits fund the guard.
+        </div>
+      </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <script>
+      // Tab Switching Logic
+      function switchTab(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        const indexMap = { 'tab-sandbox': 0, 'tab-onchain': 1, 'tab-trader': 2, 'tab-offline': 3, 'tab-wallet': 4, 'tab-swapclaim': 5 };
+        document.querySelectorAll('.tab-btn')[indexMap[tabId]].classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      }
+
+      // Quick Fills
+      function quickFillOnchain(tokenId) {
+        document.getElementById('onchain-token-id').value = tokenId;
+        document.getElementById('btn-fetch-onchain').click();
+      }
+
+      function quickFillTrader(address) {
+        document.getElementById('trader-address').value = address;
+        document.getElementById('btn-fetch-trader').click();
+      }
+
+      function updateSimSliderVal(val) {
+        document.getElementById('sim-slider-val').textContent = val;
+        runSimulation();
+      }
+
+      function quickSetSimGuard(val) {
+        document.getElementById('sim-guard-score').value = val;
+        updateSimSliderVal(val);
+      }
+
+      // Notification toast helper
+      function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.style.background = isError ? 'rgba(244, 63, 94, 0.95)' : 'rgba(16, 185, 129, 0.95)';
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+      }
+
+      // Local SVG generator in JS (replicates Solidity _svg and _color)
+      function generateReceiptSvg(guardScore, seed) {
+        let pixels = "";
+        const colorsNormal = ["#22c55e", "#14b8a6", "#38bdf8", "#a3e635", "#f8fafc", "#94a3b8"];
+        const colorsGuarded = ["#f97316", "#facc15", "#fb7185", "#c084fc", "#38bdf8", "#f8fafc"];
+        
+        let hex = seed.startsWith("0x") ? seed.slice(2) : seed;
+        for (let i = 0; i < 16; i++) {
+          const x = (i % 4) * 6;
+          const y = Math.floor(i / 4) * 6;
+          const byteVal = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+          const hue = byteVal % 6;
+          const color = guardScore > 0 ? colorsGuarded[hue] : colorsNormal[hue];
+          pixels += `<rect x="${x}" y="${y}" width="6" height="6" fill="${color}"/>`;
+        }
+        
+        const bottomColor = guardScore > 0 ? "#f97316" : "#22c55e";
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" shape-rendering="crispEdges">
+          <rect width="24" height="24" fill="#111827"/>
+          ${pixels}
+          <path d="M3 21h18v2H3z" fill="${bottomColor}"/>
+        </svg>`;
+      }
+
+      // Generate seed via ethers.js AbiCoder
+      function getReceiptSeed(tokenId, poolId, trader, swapIndex, guardScore, blockNumber) {
+        const coder = ethers.AbiCoder.defaultAbiCoder();
+        // Pack data equivalent to abi.encode
+        const encoded = coder.encode(
+          ["uint256", "bytes32", "address", "uint256", "uint256", "uint256"],
+          [tokenId, poolId, trader, swapIndex, guardScore, blockNumber]
+        );
+        return ethers.keccak256(encoded);
+      }
+
+      // Run Simulator
+      function runSimulation() {
+        const address = document.getElementById('sim-address').value.trim();
+        const swapIndex = parseInt(document.getElementById('sim-swap-index').value) || 0;
+        const blockNum = parseInt(document.getElementById('sim-block').value) || 0;
+        const guardScore = parseInt(document.getElementById('sim-guard-score').value) || 0;
+        const poolId = "0xe20b00508f7a552a132ea2eb0d4a17810942e42c62e30822d9955fa282771d5c"; // Pre-deployed Pool ID
+
+        if (!ethers.isAddress(address)) {
+          return; // Wait for valid address
+        }
+
+        const seed = getReceiptSeed(1, poolId, address, swapIndex, guardScore, blockNum);
+        const svg = generateReceiptSvg(guardScore, seed);
+
+        // Inject SVG
+        document.getElementById('sim-svg-container').innerHTML = svg;
+        document.getElementById('sim-card-title').textContent = `PixelGuard #${guardScore > 0 ? 'Orange' : 'Green'}`;
+        
+        // Setup traits list
+        const traitsList = document.getElementById('sim-traits-list');
+        traitsList.innerHTML = `
+          <div class="trait-item"><span class="trait-name">Swap Index</span><span class="trait-val">${swapIndex}</span></div>
+          <div class="trait-item"><span class="trait-name">Guard Score</span><span class="trait-val">${guardScore}</span></div>
+          <div class="trait-item"><span class="trait-name">LP Fee</span><span class="trait-val">${guardScore > 0 ? '0.80% (Disc)' : '0.20% (Disc)'}</span></div>
+          <div class="trait-item"><span class="trait-name">Block</span><span class="trait-val">${blockNum}</span></div>
+        `;
+
+        // Update glow
+        const glowContainer = document.getElementById('sim-glow-container');
+        if (guardScore > 0) {
+          glowContainer.style.setProperty('--glow-color', 'rgba(249, 115, 22, 0.25)');
+          document.getElementById('sim-card-title').style.color = 'var(--accent-amber)';
+        } else {
+          glowContainer.style.setProperty('--glow-color', 'rgba(16, 185, 129, 0.25)');
+          document.getElementById('sim-card-title').style.color = 'var(--accent-emerald)';
+        }
+      }
+
+      // Initialize real showcases in the bottom of the page
+      function initializeFeatured() {
+        const poolId = "0xe20b00508f7a552a132ea2eb0d4a17810942e42c62e30822d9955fa282771d5c";
+        const trader = "0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a";
+
+        // Showcase 1: Normal (Token ID 1, swap index 1, block 61171220, guard score 0)
+        const seed1 = getReceiptSeed(1, poolId, trader, 1, 0, 61171220);
+        const svg1 = generateReceiptSvg(0, seed1);
+        document.getElementById('featured-svg-1').innerHTML = svg1;
+
+        // Showcase 2: Guarded (Token ID 2, swap index 2, block 61171332, guard score 75)
+        const seed2 = getReceiptSeed(2, poolId, trader, 2, 75, 61171332);
+        const svg2 = generateReceiptSvg(75, seed2);
+        document.getElementById('featured-svg-2').innerHTML = svg2;
+      }
+
+      function loadFeatured(id) {
+        if (id === 1) {
+          document.getElementById('sim-address').value = "0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a";
+          document.getElementById('sim-swap-index').value = 1;
+          document.getElementById('sim-block').value = 61171220;
+          quickSetSimGuard(0);
+        } else {
+          document.getElementById('sim-address').value = "0x34Ff7335233fAF283bC6AD63Bf9fC2BB7Dfb433a";
+          document.getElementById('sim-swap-index').value = 2;
+          document.getElementById('sim-block').value = 61171332;
+          quickSetSimGuard(75);
+        }
+        switchTab('tab-sandbox');
+        showToast("Example parameters loaded!");
+      }
+
+      // Query contract wrapper using Ethers.js (read-only via public RPC)
+      async function getContractInstance() {
+        const rpcUrl = document.getElementById('rpc-endpoint').value.trim();
+        const contractAddress = document.getElementById('contract-address').value.trim();
+
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+        return new ethers.Contract(contractAddress, hookABI, provider);
+      }
+
+      // Fetch Live Stats for banner
+      async function updateDashboardBanner() {
+        try {
+          const contract = await getContractInstance();
+          
+          const supply = await contract.totalSupply();
+          document.getElementById('dash-total-supply').textContent = supply.toString();
+          
+          // Query ERC20 balance of Token A (PXG-A)
+          const rpcUrl = document.getElementById('rpc-endpoint').value.trim();
+          const provider = new ethers.JsonRpcProvider(rpcUrl);
+          
+          // PXG-A token address on X Layer
+          const tokenAAddress = "0x1c5b14cb76aee77b3c66a4ac56731d67bce17dfb";
+          const erc20ABI = ["function balanceOf(address) view returns (uint256)", "function symbol() view returns (string)"];
+          const tokenA = new ethers.Contract(tokenAAddress, erc20ABI, provider);
+          
+          const bal = await tokenA.balanceOf(contract.target);
+          document.getElementById('dash-treasury-a').textContent = `${ethers.formatEther(bal)} PXG-A`;
+        } catch (e) {
+          console.error("Dashboard metrics fetch error:", e);
+          document.getElementById('dash-total-supply').textContent = "Offline/Not set";
+          document.getElementById('dash-treasury-a').textContent = "0.00 PXG-A";
+        }
+      }
+
+      // Fetch On-chain Token ID (Tab 1)
+      document.getElementById('btn-fetch-onchain').addEventListener('click', async () => {
+        const tokenId = parseInt(document.getElementById('onchain-token-id').value);
+        if (isNaN(tokenId)) {
+          showToast("Please enter a valid Token ID", true);
+          return;
+        }
+
+        const panel = document.getElementById('preview-panel-onchain');
+        const empty = document.getElementById('onchain-empty');
+        const card = document.getElementById('onchain-card-container');
+        
+        empty.style.display = 'none';
+        card.style.display = 'none';
+        
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+        const loadingText = document.createElement('span');
+        loadingText.textContent = `Fetching Token #${tokenId} metadata from X Layer...`;
+        loadingText.style.color = 'var(--text-secondary)';
+        panel.appendChild(loader);
+        panel.appendChild(loadingText);
+
+        try {
+          const contract = await getContractInstance();
+          const uri = await contract.tokenURI(tokenId);
+          
+          if (!uri.startsWith("data:application/json;utf8,")) {
+            throw new Error("Unexpected metadata format");
+          }
+
+          const rawJson = uri.slice("data:application/json;utf8,".length);
+          const metadata = JSON.parse(rawJson);
+
+          // Render SVG image
+          if (metadata.image.startsWith("data:image/svg+xml;base64,")) {
+            const base64Svg = metadata.image.slice("data:image/svg+xml;base64,".length);
+            const decodedSvg = atob(base64Svg);
+            document.getElementById('onchain-img-container').innerHTML = decodedSvg;
+          } else {
+            document.getElementById('onchain-img-container').innerHTML = `<img src="${metadata.image}" style="width:100%;height:100%"/>`;
+          }
+
+          document.getElementById('onchain-title').textContent = metadata.name;
+          
+          // Clear and fill traits
+          const traitsList = document.getElementById('onchain-traits');
+          traitsList.innerHTML = '';
+          
+          let guardScore = 0;
+          metadata.attributes.forEach(attr => {
+            const item = document.createElement('div');
+            item.className = 'trait-item';
+            item.innerHTML = `<span class="trait-name">${attr.trait_type}</span><span class="trait-val">${attr.value}</span>`;
+            traitsList.appendChild(item);
+            if (attr.trait_type === 'Guard Score') {
+              guardScore = parseInt(attr.value);
+            }
+          });
+
+          // Set card glow colors depending on risk
+          const container = document.getElementById('preview-panel-onchain');
+          if (guardScore > 0) {
+            container.style.setProperty('--glow-color', 'rgba(249, 115, 22, 0.25)');
+            document.getElementById('onchain-title').style.color = 'var(--accent-amber)';
+          } else {
+            container.style.setProperty('--glow-color', 'rgba(16, 185, 129, 0.25)');
+            document.getElementById('onchain-title').style.color = 'var(--accent-emerald)';
+          }
+
+          card.style.display = 'block';
+          showToast("On-chain metadata loaded!");
+        } catch (error) {
+          empty.style.display = 'flex';
+          showToast(`Error: ${error.message}`, true);
+        } finally {
+          loader.remove();
+          loadingText.remove();
+        }
+      });
+
+      // Fetch Trader Portfolio (Tab 2)
+      document.getElementById('btn-fetch-trader').addEventListener('click', async () => {
+        const address = document.getElementById('trader-address').value.trim();
+        if (!ethers.isAddress(address)) {
+          showToast("Invalid EVM wallet address", true);
+          return;
+        }
+
+        const panel = document.getElementById('preview-panel-trader');
+        const empty = document.getElementById('trader-empty');
+        const gallery = document.getElementById('trader-gallery');
+        
+        empty.style.display = 'none';
+        gallery.style.display = 'none';
+        
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+        const loadingText = document.createElement('span');
+        loadingText.textContent = `Loading receipts owned by ${address.slice(0,6)}...${address.slice(-4)}`;
+        loadingText.style.color = 'var(--text-secondary)';
+        panel.appendChild(loader);
+        panel.appendChild(loadingText);
+
+        try {
+          const contract = await getContractInstance();
+          const count = await contract.getReceiptCountOfTrader(address);
+          const totalReceipts = Number(count);
+
+          if (totalReceipts === 0) {
+            empty.innerHTML = `<span class="empty-icon">📭</span><span>This trader does not own any PixelGuard receipts yet.</span>`;
+            empty.style.display = 'flex';
+            showToast("No receipts found.");
+            return;
+          }
+
+          gallery.innerHTML = ''; // Clear previous items
+
+          // Fetch each receipt by index
+          for (let i = 0; i < totalReceipts; i++) {
+            const tokenId = await contract.receiptOfTraderByIndex(address, i);
+            const uri = await contract.tokenURI(tokenId);
+            
+            const rawJson = uri.slice("data:application/json;utf8,".length);
+            const metadata = JSON.parse(rawJson);
+
+            let guardScore = 0;
+            let blockNum = 0;
+            metadata.attributes.forEach(attr => {
+              if (attr.trait_type === 'Guard Score') guardScore = parseInt(attr.value);
+              if (attr.trait_type === 'Block') blockNum = attr.value;
+            });
+
+            // Decode image SVG
+            let inlineSvg = "";
+            if (metadata.image.startsWith("data:image/svg+xml;base64,")) {
+              const base64Svg = metadata.image.slice("data:image/svg+xml;base64,".length);
+              inlineSvg = atob(base64Svg);
+            } else {
+              inlineSvg = `<img src="${metadata.image}" style="width:100%;height:100%"/>`;
+            }
+
+            // Create Gallery Grid Item
+            const galleryCard = document.createElement('div');
+            galleryCard.className = 'gallery-card';
+            galleryCard.innerHTML = `
+              <div class="gallery-img-container">${inlineSvg}</div>
+              <div class="gallery-title" style="color: ${guardScore > 0 ? 'var(--accent-amber)' : 'var(--accent-emerald)'}">${metadata.name}</div>
+              <div class="gallery-meta">
+                <span>Guard Score: ${guardScore}</span>
+                <span>Block: ${blockNum}</span>
+              </div>
+            `;
+            
+            // Set up click action to load into main view (Tab 1)
+            galleryCard.addEventListener('click', () => {
+              switchTab('tab-onchain');
+              document.getElementById('onchain-token-id').value = tokenId.toString();
+              document.getElementById('btn-fetch-onchain').click();
+            });
+
+            gallery.appendChild(galleryCard);
+          }
+
+          gallery.style.display = 'grid';
+          showToast(`Successfully loaded ${totalReceipts} receipts!`);
+        } catch (error) {
+          empty.style.display = 'flex';
+          showToast(`Error: ${error.message}`, true);
+        } finally {
+          loader.remove();
+          loadingText.remove();
+        }
+      });
+
+      // Local URI Parser (Tab 3)
+      document.getElementById('btn-parse-offline').addEventListener('click', () => {
+        const raw = document.getElementById('offline-uri').value.trim();
         const prefix = "data:application/json;utf8,";
+        
+        const empty = document.getElementById('offline-empty');
+        const card = document.getElementById('offline-card-container');
+
         if (!raw.startsWith(prefix)) {
-          caption.textContent = "Expected a data:application/json;utf8 tokenURI.";
-          image.removeAttribute("src");
+          showToast("Expected a valid 'data:application/json;utf8,' metadata string prefix", true);
+          empty.style.display = 'flex';
+          card.style.display = 'none';
           return;
         }
 
         try {
           const metadata = JSON.parse(raw.slice(prefix.length));
-          image.src = metadata.image;
-          caption.textContent = `${metadata.name} | ${metadata.attributes.map((item) => `${item.trait_type}: ${item.value}`).join(" | ")}`;
+          
+          if (metadata.image.startsWith("data:image/svg+xml;base64,")) {
+            const base64Svg = metadata.image.slice("data:image/svg+xml;base64,".length);
+            const decodedSvg = atob(base64Svg);
+            document.getElementById('offline-img-container').innerHTML = decodedSvg;
+          } else {
+            document.getElementById('offline-img-container').innerHTML = `<img src="${metadata.image}" style="width:100%;height:100%"/>`;
+          }
+
+          document.getElementById('offline-title').textContent = metadata.name;
+          
+          const traitsList = document.getElementById('offline-traits');
+          traitsList.innerHTML = '';
+          
+          let guardScore = 0;
+          metadata.attributes.forEach(attr => {
+            const item = document.createElement('div');
+            item.className = 'trait-item';
+            item.innerHTML = `<span class="trait-name">${attr.trait_type}</span><span class="trait-val">${attr.value}</span>`;
+            traitsList.appendChild(item);
+            if (attr.trait_type === 'Guard Score') {
+              guardScore = parseInt(attr.value);
+            }
+          });
+
+          // Set glow and colors
+          const container = document.getElementById('preview-panel-offline');
+          if (guardScore > 0) {
+            container.style.setProperty('--glow-color', 'rgba(249, 115, 22, 0.25)');
+            document.getElementById('offline-title').style.color = 'var(--accent-amber)';
+          } else {
+            container.style.setProperty('--glow-color', 'rgba(16, 185, 129, 0.25)');
+            document.getElementById('offline-title').style.color = 'var(--accent-emerald)';
+          }
+
+          empty.style.display = 'none';
+          card.style.display = 'block';
+          showToast("Parsed and rendered successfully!");
         } catch (error) {
-          caption.textContent = `Could not parse metadata: ${error.message}`;
-          image.removeAttribute("src");
+          empty.style.display = 'flex';
+          card.style.display = 'none';
+          showToast(`Error: ${error.message}`, true);
         }
       });
+
+      // Global loaders on load
+      window.addEventListener('DOMContentLoaded', () => {
+        // Run Simulator immediately with default inputs
+        runSimulation();
+        // Draw featured showcases
+        initializeFeatured();
+        // Load stats from X Layer RPC
+        updateDashboardBanner();
+        
+        // Add change listeners to simulator inputs for instant updates
+        document.getElementById('sim-address').addEventListener('input', runSimulation);
+        document.getElementById('sim-swap-index').addEventListener('input', runSimulation);
+        document.getElementById('sim-block').addEventListener('input', runSimulation);
+
+        // Swap guard warning listener
+        const swapAmtEl = document.getElementById('swap-amount');
+        if (swapAmtEl) {
+          swapAmtEl.addEventListener('input', () => {
+            const v = parseFloat(swapAmtEl.value) || 0;
+            const warn = document.getElementById('swap-guard-warning');
+            if (warn) warn.style.display = v >= 5 ? 'block' : 'none';
+          });
+        }
+
+        // Restore wallet connection if MetaMask is already connected
+        checkWalletConnection();
+      });
+
+      // ═══════════════════════════════════════════════════
+      // EXPANDED ABI + WALLET + SWAP + CLAIM + I18N
+      // ═══════════════════════════════════════════════════
+
+      // Contract addresses (X Layer mainnet deployment)
+      const HOOK_ADDRESS = "0x54facbb2bfe6c818fe8087a6d86557b73fb600c0";
+      const ROUTER_ADDRESS = "0xE4e6CAdE3E2a67F16A5d867C44e1e7Df02f0fc03";
+      const TOKEN0_ADDRESS = "0x1c5b14cb76aee77b3c66a4ac56731d67bce17dfb";
+      const TOKEN1_ADDRESS = "0xa89c0904233aeccb5f6d8f43738891301222ac02";
+      const POOL_MANAGER_ADDRESS = "0x360e68faccca8ca495c1b759fd9eee466db9fb32";
+      const POOL_ID = "0xe20b00508f7a552a132ea2eb0d4a17810942e42c62e30822d9955fa282771d5c";
+      const XLAYER_CHAIN_ID = 196;
+
+      // Expanded Hook ABI (read + write)
+      const hookABI = [
+        "function totalSupply() view returns (uint256)",
+        "function rewardPerShare(bytes32 poolId, address currency) view returns (uint256)",
+        "function tokenURI(uint256 tokenId) view returns (string)",
+        "function ownerOf(uint256 tokenId) view returns (address)",
+        "function getReceiptCountOfTrader(address trader) view returns (uint256)",
+        "function receiptOfTraderByIndex(address trader, uint256 index) view returns (uint256)",
+        "function receipts(uint256 tokenId) view returns (bytes32 poolId, address trader, uint48 swapIndex, uint32 blockNumber, uint16 guardScore)",
+        "function guardReserve(bytes32 poolId) view returns (uint256)",
+        "function approve(address spender, uint256 tokenId) external",
+        "function claim(uint256 tokenId, tuple(address currency0, address currency1, uint24 fee, int24 tickSpacing, address hooks) key) external"
+      ];
+
+      // Hookmate Router ABI
+      const routerABI = [
+        "function swapExactTokensForTokens(uint256 amountIn, uint256 amountOutMin, bool zeroForOne, tuple(address currency0, address currency1, uint24 fee, int24 tickSpacing, address hooks) poolKey, bytes hookData, address receiver, uint256 deadline) returns (int256)"
+      ];
+
+      // ERC20 ABI
+      const erc20ABI = [
+        "function balanceOf(address owner) view returns (uint256)",
+        "function allowance(address owner, address spender) view returns (uint256)",
+        "function approve(address spender, uint256 amount) returns (bool)",
+        "function symbol() view returns (string)",
+        "function decimals() view returns (uint8)"
+      ];
+
+      // PoolKey for the deployed pool
+      const poolKey = {
+        currency0: TOKEN0_ADDRESS,
+        currency1: TOKEN1_ADDRESS,
+        fee: 0x800000,   // LPFeeLibrary.DYNAMIC_FEE_FLAG
+        tickSpacing: 60,
+        hooks: HOOK_ADDRESS
+      };
+
+      // ── I18N ──
+      let currentLang = 'en';
+      const i18n = {
+        en: {
+          wallet_title: "🔗 Wallet Connection", wallet_desc: "Connect your MetaMask wallet to interact with the PixelGuard Hook on X Layer mainnet.",
+          btn_connect: "Connect MetaMask", btn_disconnect: "Disconnect",
+          wallet_empty: "Connect your wallet to see balances and interact with the Hook.",
+          label_receipts: "Receipts Owned", label_address: "Address",
+          swap_title: "💱 Swap & Claim", swap_desc: "Execute swaps through the PixelGuard pool and claim accrued treasury yield.",
+          swap_section_title: "Execute Swap", swap_amount_label: "Swap Amount (Token A → Token B)",
+          swap_guard_warning: "⚠ Large swap detected. This will trigger Guarded mode (1.00% LP fee + 0.50% hook fee).",
+          swap_nft_discount: "NFT Discount (optional)", swap_no_discount: "No discount (standard fee)",
+          swap_nft_hint: "Hold a receipt NFT to get 0.20% / 0.80% discounted LP fees.",
+          btn_swap: "Swap (Requires Wallet)", claim_section_title: "Claim Treasury Yield",
+          claim_desc: "Your receipt NFTs accumulate yield from guarded swap fees. Claim your share below.",
+          claim_empty: "Connect wallet to see your receipts.", btn_claim: "Claim",
+          swapclaim_empty: "Connect your wallet, then execute swaps or claim yield here.",
+          view_explorer: "View on Explorer",
+          net_wrong: "Wrong network. Please switch to X Layer (chainId 196).",
+          net_switching: "Switching to X Layer...", net_switched: "Switched to X Layer.",
+          net_adding: "Adding X Layer to MetaMask...", connected: "Connected",
+          connecting: "Connecting...", err_connect: "Connection error",
+          err_no_metamask: "MetaMask not found. Please install the MetaMask extension.",
+          err_no_wallet: "Please connect your wallet first.",
+          err_amount: "Please enter a valid swap amount.",
+          err_approve: "Token approval failed",
+          err_swap: "Swap failed", err_claim: "Claim failed",
+          err_receipts: "Failed to load receipts",
+          approving: "Approving token...", approved: "Token approved!",
+          swapping: "Swapping...", swapped: "Swap confirmed!",
+          claiming: "Claiming...", claimed: "Yield claimed!",
+          no_receipts: "No receipts found.", loading_receipts: "Loading receipts..."
+        },
+        zh: {
+          wallet_title: "🔗 钱包连接", wallet_desc: "连接 MetaMask 钱包，在 X Layer 主网上与 PixelGuard Hook 交互。",
+          btn_connect: "连接 MetaMask", btn_disconnect: "断开连接",
+          wallet_empty: "连接钱包以查看余额并与 Hook 交互。",
+          label_receipts: "持有 Receipt 数量", label_address: "地址",
+          swap_title: "💱 交换 & 领取收益", swap_desc: "通过 PixelGuard 池执行交换，并领取累积的金库收益。",
+          swap_section_title: "执行交换", swap_amount_label: "交换数量 (Token A → Token B)",
+          swap_guard_warning: "⚠ 检测到大额交换！将触发 Guarded 模式（1.00% LP 费用 + 0.50% Hook 费用）。",
+          swap_nft_discount: "NFT 折扣（可选）", swap_no_discount: "不使用折扣（标准费率）",
+          swap_nft_hint: "持有 Receipt NFT 可享受 0.20% / 0.80% 折扣 LP 费率。",
+          btn_swap: "交换（需要钱包）", claim_section_title: "领取金库收益",
+          claim_desc: "你的 Receipt NFT 从大额交换费用中累积收益。点击下方领取你的份额。",
+          claim_empty: "连接钱包以查看你的 Receipt。", btn_claim: "领取",
+          swapclaim_empty: "连接钱包后，在此执行交换或领取收益。",
+          view_explorer: "在浏览器查看",
+          net_wrong: "网络错误，请切换到 X Layer（chainId 196）。",
+          net_switching: "正在切换到 X Layer...", net_switched: "已切换到 X Layer。",
+          net_adding: "正在添加 X Layer 到 MetaMask...", connected: "已连接",
+          connecting: "连接中...", err_connect: "连接错误",
+          err_no_metamask: "未检测到 MetaMask，请安装 MetaMask 扩展。",
+          err_no_wallet: "请先连接钱包。",
+          err_amount: "请输入有效的交换数量。",
+          err_approve: "代币授权失败",
+          err_swap: "交换失败", err_claim: "领取失败",
+          err_receipts: "加载 Receipt 失败",
+          approving: "正在授权代币...", approved: "代币已授权！",
+          swapping: "交换中...", swapped: "交换已确认！",
+          claiming: "领取中...", claimed: "收益已领取！",
+          no_receipts: "未找到 Receipt。", loading_receipts: "加载 Receipt 中..."
+        }
+      };
+
+      function t(key) { return (i18n[currentLang] && i18n[currentLang][key]) || i18n.en[key] || key; }
+
+      function applyI18n() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const k = el.getAttribute('data-i18n');
+          if (i18n[currentLang][k]) el.textContent = i18n[currentLang][k];
+        });
+      }
+
+      function toggleLang() {
+        currentLang = currentLang === 'en' ? 'zh' : 'en';
+        document.getElementById('lang-btn').textContent = currentLang === 'en' ? '中文' : 'EN';
+        applyI18n();
+      }
+
+      // ── WALLET ──
+      let userAddress = null;
+
+      async function checkWalletConnection() {
+        if (typeof window.ethereum === 'undefined') return;
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts && accounts.length > 0) {
+            userAddress = accounts[0];
+            onWalletConnected();
+          }
+        } catch (e) { /* silent */ }
+      }
+
+      async function connectWallet() {
+        if (typeof window.ethereum === 'undefined') {
+          showToast(t('err_no_metamask'), true);
+          return;
+        }
+        try {
+          setWalletStatus('connecting');
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          userAddress = accounts[0];
+          await ensureXLayer();
+          onWalletConnected();
+        } catch (e) {
+          showToast(t('err_connect') + ': ' + (e.message || e), true);
+          setWalletStatus('disconnected');
+        }
+      }
+
+      async function ensureXLayer() {
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        if (parseInt(chainId, 16) === XLAYER_CHAIN_ID) return;
+        try {
+          setWalletStatus('switching');
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x' + XLAYER_CHAIN_ID.toString(16) }]
+          });
+          showToast(t('net_switched'));
+        } catch (e) {
+          if (e.code === 4902) {
+            setWalletStatus('adding');
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: '0x' + XLAYER_CHAIN_ID.toString(16),
+                chainName: 'X Layer Mainnet',
+                nativeCurrency: { name: 'OKB', symbol: 'OKB', decimals: 18 },
+                rpcUrls: ['https://rpc.xlayer.tech'],
+                blockExplorerUrls: ['https://www.okx.com/web3/explorer/xlayer']
+              }]
+            });
+          } else { throw e; }
+        }
+      }
+
+      function setWalletStatus(state) {
+        const dot = document.getElementById('wallet-dot');
+        const text = document.getElementById('wallet-status-text');
+        if (state === 'connecting' || state === 'switching' || state === 'adding') {
+          dot.className = 'dot disconnected'; text.textContent = t(state === 'connecting' ? 'connecting' : state === 'switching' ? 'net_switching' : 'net_adding');
+        } else if (state === 'connected') {
+          dot.className = 'dot connected'; text.innerHTML = '<span class="addr">' + userAddress.slice(0,6) + '...' + userAddress.slice(-4) + '</span> · <span class="chain">X Layer</span>';
+        } else {
+          dot.className = 'dot disconnected'; text.textContent = 'Not connected';
+        }
+      }
+
+      function onWalletConnected() {
+        setWalletStatus('connected');
+        const btn = document.getElementById('btn-connect-wallet');
+        btn.textContent = t('btn_disconnect');
+        btn.onclick = disconnectWallet;
+        document.getElementById('wallet-details').style.display = 'block';
+        document.getElementById('wallet-empty').style.display = 'none';
+        document.getElementById('wallet-info-panel').style.display = 'block';
+        document.getElementById('wallet-hook-addr').textContent = HOOK_ADDRESS;
+        document.getElementById('wallet-pool-id').textContent = POOL_ID;
+        document.getElementById('wallet-explorer-link').href = 'https://www.oklink.com/xlayer/address/' + HOOK_ADDRESS;
+        loadWalletDetails();
+        loadClaimList();
+      }
+
+      function disconnectWallet() {
+        userAddress = null;
+        setWalletStatus('disconnected');
+        const btn = document.getElementById('btn-connect-wallet');
+        btn.textContent = t('btn_connect');
+        btn.onclick = connectWallet;
+        document.getElementById('wallet-details').style.display = 'none';
+        document.getElementById('wallet-empty').style.display = 'flex';
+        document.getElementById('wallet-info-panel').style.display = 'none';
+      }
+
+      async function loadWalletDetails() {
+        if (!userAddress) return;
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const token0 = new ethers.Contract(TOKEN0_ADDRESS, erc20ABI, provider);
+          const token1 = new ethers.Contract(TOKEN1_ADDRESS, erc20ABI, provider);
+          const hookRO = new ethers.Contract(HOOK_ADDRESS, hookABI, provider);
+
+          const [bal0, bal1, receiptCount, reserve] = await Promise.all([
+            token0.balanceOf(userAddress), token1.balanceOf(userAddress),
+            hookRO.getReceiptCountOfTrader(userAddress), hookRO.guardReserve(POOL_ID)
+          ]);
+
+          document.getElementById('wallet-token0-bal').textContent = parseFloat(ethers.formatEther(bal0)).toFixed(4);
+          document.getElementById('wallet-token1-bal').textContent = parseFloat(ethers.formatEther(bal1)).toFixed(4);
+          document.getElementById('wallet-receipt-count').textContent = receiptCount.toString();
+          document.getElementById('wallet-guard-reserve').textContent = reserve.toString();
+          document.getElementById('wallet-msg').textContent = '';
+        } catch (e) {
+          document.getElementById('wallet-msg').textContent = e.message;
+        }
+      }
+
+      // Listen for account/network changes
+      if (typeof window.ethereum !== 'undefined') {
+        window.ethereum.on('accountsChanged', (accs) => {
+          if (accs.length === 0) { disconnectWallet(); }
+          else { userAddress = accs[0]; onWalletConnected(); }
+        });
+        window.ethereum.on('chainChanged', () => { window.location.reload(); });
+      }
+
+      // ── SWAP ──
+      async function executeSwap() {
+        if (!userAddress) { showToast(t('err_no_wallet'), true); return; }
+        const amountStr = document.getElementById('swap-amount').value.trim();
+        const amountFloat = parseFloat(amountStr);
+        if (!amountStr || isNaN(amountFloat) || amountFloat <= 0) {
+          setMsg('swap-msg', t('err_amount'), true); return;
+        }
+
+        try {
+          setMsg('swap-msg', t('approving'));
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          const token0 = new ethers.Contract(TOKEN0_ADDRESS, erc20ABI, signer);
+          const router = new ethers.Contract(ROUTER_ADDRESS, routerABI, signer);
+
+          const amountIn = ethers.parseEther(amountStr);
+          const currentAllowance = await token0.allowance(userAddress, ROUTER_ADDRESS);
+          if (currentAllowance < amountIn) {
+            const tx = await token0.approve(ROUTER_ADDRESS, ethers.MaxUint256);
+            await tx.wait();
+            setMsg('swap-msg', t('approved'));
+          }
+
+          setMsg('swap-msg', t('swapping'));
+          const selectedNft = document.getElementById('swap-nft-select').value;
+          let hookData;
+          if (selectedNft && selectedNft !== '0') {
+            hookData = ethers.AbiCoder.defaultAbiCoder().encode(["address", "uint256"], [userAddress, BigInt(selectedNft)]);
+          } else {
+            hookData = ethers.AbiCoder.defaultAbiCoder().encode(["address"], [userAddress]);
+          }
+          const deadline = Math.floor(Date.now() / 1000) + 300;
+
+          const swapTx = await router.swapExactTokensForTokens(
+            amountIn, 0, true, poolKey, hookData, userAddress, deadline
+          );
+          const receipt = await swapTx.wait();
+
+          showTxResult(receipt.hash, t('swapped'));
+          setMsg('swap-msg', t('swapped'), false, true);
+          loadWalletDetails();
+          loadClaimList();
+        } catch (e) {
+          setMsg('swap-msg', t('err_swap') + ': ' + (e.reason || e.message || e), true);
+        }
+      }
+
+      // ── CLAIM ──
+      async function loadClaimList() {
+        if (!userAddress) return;
+        const listEl = document.getElementById('claim-nft-list');
+        const swapNftSelect = document.getElementById('swap-nft-select');
+        // Reset NFT selector to default
+        swapNftSelect.innerHTML = '<option value="0">' + t('swap_no_discount') + '</option>';
+        listEl.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:20px;">' + t('loading_receipts') + '</div>';
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const hookRO = new ethers.Contract(HOOK_ADDRESS, hookABI, provider);
+          const count = Number(await hookRO.getReceiptCountOfTrader(userAddress));
+          if (count === 0) {
+            listEl.innerHTML = '<div style="text-align:center;color:var(--text-secondary);font-size:13px;padding:20px;">' + t('no_receipts') + '</div>';
+            return;
+          }
+          listEl.innerHTML = '';
+          for (let i = 0; i < count; i++) {
+            const tokenId = await hookRO.receiptOfTraderByIndex(userAddress, i);
+            const receipt = await hookRO.receipts(tokenId);
+            const row = document.createElement('div');
+            row.className = 'nft-row';
+            row.innerHTML = '<div><span class="nft-id">Receipt #' + tokenId + '</span><br><span class="nft-score">Guard Score: ' + receipt.guardScore + '</span></div>' +
+              '<button class="btn-sm">' + t('btn_claim') + '</button>';
+            row.querySelector('.btn-sm').addEventListener('click', () => claimToken(tokenId));
+            listEl.appendChild(row);
+
+            // Also populate swap NFT discount selector
+            const opt = document.createElement('option');
+            opt.value = tokenId.toString();
+            opt.textContent = 'Receipt #' + tokenId + ' (Guard: ' + receipt.guardScore + ')';
+            swapNftSelect.appendChild(opt);
+          }
+        } catch (e) {
+          listEl.innerHTML = '<div style="text-align:center;color:var(--accent-rose);font-size:13px;padding:20px;">' + t('err_receipts') + ': ' + e.message + '</div>';
+        }
+      }
+
+      async function claimToken(tokenId) {
+        if (!userAddress) { showToast(t('err_no_wallet'), true); return; }
+        try {
+          setMsg('claim-msg', t('claiming'));
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          const hook = new ethers.Contract(HOOK_ADDRESS, hookABI, signer);
+          const tx = await hook.claim(tokenId, poolKey);
+          const receipt = await tx.wait();
+          showTxResult(receipt.hash, t('claimed'));
+          setMsg('claim-msg', t('claimed'), false, true);
+          loadWalletDetails();
+        } catch (e) {
+          setMsg('claim-msg', t('err_claim') + ': ' + (e.reason || e.message || e), true);
+        }
+      }
+
+      // ── HELPERS ──
+      function setMsg(elId, text, isError, isSuccess) {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.textContent = text;
+        el.className = 'status-msg' + (isError ? ' error' : (isSuccess ? ' success' : ''));
+      }
+
+      function showTxResult(hash, title) {
+        document.getElementById('swapclaim-empty').style.display = 'none';
+        document.getElementById('swapclaim-result').style.display = 'block';
+        document.getElementById('swapclaim-result-title').textContent = title;
+        document.getElementById('swapclaim-result-hash').textContent = hash;
+        document.getElementById('swapclaim-tx-link').href = 'https://www.oklink.com/xlayer/tx/' + hash;
+      }
     </script>
   </body>
 </html>

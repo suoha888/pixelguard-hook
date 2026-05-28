@@ -2,11 +2,13 @@
 pragma solidity ^0.8.26;
 
 import {console2} from "forge-std/console2.sol";
+import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 import {IHooks} from "@uniswap/v4-core/src/interfaces/IHooks.sol";
 import {LPFeeLibrary} from "@uniswap/v4-core/src/libraries/LPFeeLibrary.sol";
 import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
 import {PoolId, PoolIdLibrary} from "@uniswap/v4-core/src/types/PoolId.sol";
+import {Currency} from "@uniswap/v4-core/src/types/Currency.sol";
 
 import {BaseScript} from "./base/BaseScript.sol";
 import {PixelGuardHook} from "../src/PixelGuardHook.sol";
@@ -34,6 +36,29 @@ contract ReadPixelGuardScript is BaseScript {
         console2.log("afterSwapCount:", hook.afterSwapCount(poolId));
         console2.log("guardReserve:", hook.guardReserve(poolId));
         console2.log("totalSupply:", hook.totalSupply());
+
+        // Print yield and treasury stats
+        console2.log("rewardPerShare[curr0]:", hook.rewardPerShare(poolId, currency0));
+        console2.log("rewardPerShare[curr1]:", hook.rewardPerShare(poolId, currency1));
+
+        // Query ERC20 balance using unwrapped address
+        uint256 bal0 = currency0.isAddressZero()
+            ? address(hook).balance
+            : PixelGuardHook(payable(address(hook))).hookOwner().balance; // standard balance check fallback
+        try hook.rewardPerShare(poolId, currency0) {
+            if (!currency0.isAddressZero()) {
+                bal0 = IERC20(Currency.unwrap(currency0)).balanceOf(address(hook));
+            }
+        } catch {}
+
+        uint256 bal1 = 0;
+        if (!currency1.isAddressZero()) {
+            try hook.rewardPerShare(poolId, currency1) {
+                bal1 = IERC20(Currency.unwrap(currency1)).balanceOf(address(hook));
+            } catch {}
+        }
+        console2.log("treasuryBalance[curr0]:", bal0);
+        console2.log("treasuryBalance[curr1]:", bal1);
 
         if (hook.totalSupply() > 0) {
             uint256 latestTokenId = hook.totalSupply();

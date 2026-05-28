@@ -1,13 +1,15 @@
 # PixelGuard Hook
 
-PixelGuard is a Uniswap v4 Hook built for the OKX Build X Hackathon Hook track on X Layer.
+PixelGuard is a yield-generating Uniswap v4 Hook built for the OKX Build X Hackathon Hook track on X Layer.
 
 For a one-page judge overview, see `JUDGES.md`.
 
-Every swap through a PixelGuard pool does two visible things:
+Every swap through a PixelGuard pool does three key things:
 
-1. `beforeSwap` classifies the trade. Large exact-input swaps receive a higher dynamic LP fee override and emit a `GuardedSwap` event.
-2. `afterSwap` mints a fully on-chain 24x24 SVG PixelGuard receipt NFT to the trader and increments a per-pool guard reserve counter.
+1. **LP Protection (`beforeSwap`)**: Large swaps (>= 5 tokens) automatically trigger a higher dynamic LP fee (1.00%) to mitigate price impact and protect liquidity.
+2. **Hook Treasury Yield (`beforeSwap` & `afterSwap`)**: Large swaps also incur a **0.50% Hook Fee** redirected directly to the contract's treasury. Holders of PixelGuard NFT receipts can call `claim()` to pull their pro-rata share of the accumulated pool fees.
+3. **NFT Utility Fee Discount**: NFT receipt holders enjoy discounted LP swap fees on future trades: **0.20%** instead of 0.30% for standard swaps, and **0.80%** instead of 1.00% for large swaps.
+4. **On-Chain Receipt Minting (`afterSwap`)**: Mints a fully on-chain 24x24 SVG PixelGuard receipt NFT representing their swap index, risk status, block number, and deterministic pixel art.
 
 The one-line pitch:
 
@@ -17,9 +19,9 @@ The one-line pitch:
 
 The official Hook track requires a Uniswap v4 Hook project deployed on X Layer with a V4 Pool and verifiable contract addresses. PixelGuard is designed to score on:
 
-- **Innovation:** combines viral swap receipts with Hook-native risk classification and dynamic fee overrides.
-- **Market value:** gives meme and launch pools a visible protection primitive without building a full launchpad.
-- **Completion:** real swaps trigger `beforeSwap` and `afterSwap`, and tests prove the behavior end to end.
+- **Innovation:** combines dynamic protection fees, yield-bearing custom hook fees, staking claims accumulator, LP discounts, and fully on-chain art.
+- **Market value:** turns transaction receipts into a yield-generating utility asset for degens and meme pools.
+- **Completion:** tests compile and pass, deployment scripts run on X Layer mainnet, and a gorgeous dApp allows users to interact with it.
 
 Official references:
 
@@ -78,7 +80,7 @@ forge test
 Expected current result:
 
 ```text
-17 tests passed, 0 failed, 0 skipped
+20 tests passed, 0 failed, 0 skipped
 ```
 
 ## X Layer Deployment

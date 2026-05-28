@@ -51,13 +51,13 @@ Deadline: 2026-05-28 23:59 UTC.
 Use this short description:
 
 ```text
-PixelGuard is a Uniswap v4 Hook on X Layer that turns every swap into an on-chain 24x24 SVG receipt NFT while using beforeSwap to classify risky large swaps and return a guarded dynamic LP fee override. afterSwap mints the receipt and updates a per-pool guard reserve counter, making Hook behavior visible, shareable, and verifiable through real swaps.
+PixelGuard is a Uniswap v4 Hook on X Layer that turns every swap into an on-chain 24x24 SVG receipt NFT while using beforeSwap to classify risky large swaps and return a guarded dynamic LP fee override. afterSwap mints the receipt, updates a per-pool guard reserve counter, and accumulates treasury yield via a staking accumulator (rewardPerShare). NFT holders can claim pro-rata dividends from guarded swap fees and enjoy discounted LP fees (0.20% normal / 0.80% guarded) on future swaps, making Hook behavior visible, shareable, and verifiable through real swaps.
 ```
 
 Use this technical description:
 
 ```text
-The Hook enables beforeSwap and afterSwap permissions. beforeSwap records the pool swap index, decodes the trader from hookData, classifies large exact-input swaps, stores traderRiskScore, emits GuardedSwap, and returns a dynamic fee override. afterSwap mints a PixelGuard receipt NFT to the trader, stores receipt metadata, emits PixelReceiptMinted, and increments guardReserve. Tests create a v4 dynamic-fee pool, add liquidity, execute swaps through the router, and assert receipt ownership, tokenURI, reserve accounting, and large-swap risk behavior.
+The Hook enables beforeSwap and afterSwap permissions. beforeSwap records the pool swap index, decodes the trader from hookData, classifies large exact-input swaps, checks NFT holdings for fee discounts (0.20% normal / 0.80% guarded), stores traderRiskScore, emits GuardedSwap, and returns a dynamic fee override with a 0.50% hook fee via BeforeSwapDelta. afterSwap mints a PixelGuard receipt NFT to the trader, stores receipt metadata, updates a staking accumulator (rewardPerShare and claimDebt) for pro-rata treasury yield distribution, calls poolManager.take() to withdraw hook fees, emits PixelReceiptMinted, and increments guardReserve. NFT holders can call claim() to withdraw accrued yield. Tests create a v4 dynamic-fee pool, add liquidity, execute swaps through the router, and assert receipt ownership, tokenURI, reserve accounting, large-swap risk behavior, fee discounts, hook fee collection, reward claiming, and receipt transfer/approval flows.
 ```
 
 ## Final Sanity Check

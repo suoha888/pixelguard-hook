@@ -4,11 +4,11 @@ Generated from docs/submission/deployment-results.md.
 
 ## Google Form Short Description
 
-PixelGuard is a Uniswap v4 Hook on X Layer that turns every swap into an on-chain 24x24 SVG receipt NFT while using beforeSwap to classify risky large swaps and return a guarded dynamic LP fee override. afterSwap mints the receipt and updates a per-pool guard reserve counter, making Hook behavior visible, shareable, and verifiable through real swaps.
+PixelGuard is a Uniswap v4 Hook on X Layer that turns every swap into an on-chain 24x24 SVG receipt NFT while using beforeSwap to classify risky large swaps and return a guarded dynamic LP fee override. afterSwap mints the receipt, updates a per-pool guard reserve counter, and accumulates treasury yield via a staking accumulator (rewardPerShare). NFT holders can claim pro-rata dividends from guarded swap fees and enjoy discounted LP fees (0.20% normal / 0.80% guarded) on future swaps, making Hook behavior visible, shareable, and verifiable through real swaps.
 
 ## Google Form Technical Description
 
-PixelGuard enables beforeSwap and afterSwap permissions. beforeSwap records the pool swap index, decodes the trader from hookData, classifies large exact-input swaps, stores traderRiskScore, emits GuardedSwap, and returns a dynamic fee override for dynamic-fee pools. afterSwap mints an ERC-721 PixelGuard receipt NFT to the trader, stores receipt metadata including an on-chain seed, emits PixelReceiptMinted, and increments guardReserve. The submitted pool uses a dynamic-fee Uniswap v4 pool on X Layer mainnet (chain id 196). The project includes Foundry tests proving real v4 swap-triggered minting, tokenURI/SVG generation, reserve accounting, large-swap risk behavior, and receipt transfer/approval behavior.
+PixelGuard enables beforeSwap and afterSwap permissions. beforeSwap records the pool swap index, decodes the trader from hookData, classifies large exact-input swaps, checks NFT holdings for fee discounts (0.20% normal / 0.80% guarded), stores traderRiskScore, emits GuardedSwap, and returns a dynamic fee override with a 0.50% hook fee via BeforeSwapDelta for dynamic-fee pools. afterSwap mints an ERC-721 PixelGuard receipt NFT to the trader, stores receipt metadata including an on-chain seed, updates a staking accumulator (rewardPerShare and claimDebt) for pro-rata treasury yield distribution, calls poolManager.take() to withdraw hook fees into the contract treasury, emits PixelReceiptMinted, and increments guardReserve. NFT holders can call claim() to withdraw accrued yield dividends. The submitted pool uses a dynamic-fee Uniswap v4 pool on X Layer mainnet (chain id 196). The project includes Foundry tests proving real v4 swap-triggered minting, tokenURI/SVG generation, reserve accounting, large-swap risk behavior, NFT fee discounts, hook fee collection, reward claiming, and receipt transfer/approval flows.
 
 ## Submission Facts
 
@@ -74,8 +74,10 @@ PixelGuard Hook submitted to Hook the Future.
 Every swap leaves a pixel. Risky exits fund the guard.
 
 Uniswap v4 Hook on X Layer:
-- beforeSwap classifies large swaps and returns a guarded dynamic fee override
-- afterSwap mints a 24x24 on-chain SVG receipt NFT
+- beforeSwap classifies large swaps, returns a guarded dynamic fee override, and charges a 0.50% hook fee to treasury
+- afterSwap mints a 24x24 on-chain SVG receipt NFT and updates a staking accumulator
+- NFT holders claim pro-rata treasury yield dividends
+- Holding a receipt = discounted LP fees (0.20% normal / 0.80% guarded)
 - guardReserve updates after real swaps
 
 Hook: 0x54facbb2bfe6c818fe8087a6d86557b73fb600c0
@@ -88,11 +90,11 @@ Tx: 0xad963e5af36c9bc6c2e874e037d5dc9ec8e5e315bfc0d53ad4636c3c876b1e29
 
 ## Demo Voiceover Short Version
 
-PixelGuard is a Uniswap v4 Hook deployed on X Layer mainnet. A normal swap triggers beforeSwap and afterSwap; the trader receives an on-chain SVG receipt and the guard reserve increases. A larger swap triggers a guarded risk score and higher dynamic fee override. The Hook address, PoolId, swap transactions, and receipt metadata are all verifiable on-chain.
+PixelGuard is a Uniswap v4 Hook deployed on X Layer mainnet. A normal swap triggers beforeSwap and afterSwap; the trader receives an on-chain SVG receipt and the guard reserve increases. A larger swap triggers a guarded risk score, a higher dynamic fee override, and a 0.50% hook fee directed to the contract treasury. Receipt holders can claim their pro-rata share of accumulated treasury yield at any time, and holding an NFT automatically discounts future swap fees to 0.20% (normal) or 0.80% (guarded). The Hook address, PoolId, swap transactions, and receipt metadata are all verifiable on-chain.
 
 ## Demo Screen Checklist
 
-- Local audit: show 17 tests passing.
+- Local audit: show 20 tests passing.
 - Hook explorer page: https://www.oklink.com/xlayer/address/0x54facbb2bfe6c818fe8087a6d86557b73fb600c0
 - Pool/swap explorer page: https://www.oklink.com/xlayer/tx/0xad963e5af36c9bc6c2e874e037d5dc9ec8e5e315bfc0d53ad4636c3c876b1e29
 - Normal swap tx: 0x5ff5e4648b1ed1219e20b16179e4f1758504dfedf6563f37630337a3b3d15db6

@@ -1,6 +1,6 @@
 # PixelGuard Hook Judge Brief
 
-PixelGuard is a Uniswap v4 Hook for X Layer that makes swaps visible and collectible while adding a simple guarded fee signal for large exits.
+PixelGuard is a yield-generating Uniswap v4 Hook for X Layer that turns transaction receipts into yield-bearing utility collectibles while providing dynamic LP protection.
 
 ## One-Line Pitch
 
@@ -10,14 +10,14 @@ Every swap leaves a pixel. Risky exits fund the guard.
 
 | Callback | Purpose | Evidence |
 |---|---|---|
-| `beforeSwap` | Counts swaps, decodes trader from `hookData`, scores large swaps, emits `GuardedSwap`, returns dynamic LP fee override. | `src/PixelGuardHook.sol`, `testLargeSwapRecordsRiskAndHigherFeeOverride` |
-| `afterSwap` | Mints an on-chain SVG ERC-721 receipt, stores receipt metadata, increments `guardReserve`, emits `PixelReceiptMinted`. | `src/PixelGuardHook.sol`, `testSwapMintsPixelReceiptToTrader` |
+| `beforeSwap` | Checks trader's NFT holdings for fee discounts (0.20% normal / 0.80% guarded). Classifies large swaps (>= 5 tokens) and dynamic fee overrides (1.00% LP fee + 0.50% Hook Fee taken to treasury). Returns `BeforeSwapDelta` to settle the hook fee. | `src/PixelGuardHook.sol`, `testUtilityFeeDiscount`, `testGuardedHookFeeCollection` |
+| `afterSwap` | Mints an on-chain SVG ERC-721 receipt, stores receipt metadata, increments `guardReserve`, updates staking accumulator (`rewardPerShare` and `claimDebt`), and calls `poolManager.take()` to withdraw the hook fee. | `src/PixelGuardHook.sol`, `testSwapMintsPixelReceiptToTrader`, `testRewardClaimingAccumulator` |
 
 ## Why It Fits The Track
 
-- Innovation: combines viral on-chain swap receipts with Hook-native risk classification and dynamic fee overrides.
-- Market value: designed for meme and launch pools that need visible activity, user-retainable receipts, and simple community-readable protection signals.
-- Completion: includes Hook contract, Foundry tests, X Layer deployment scripts, demo token/router scripts, state reader, verification command, submission pack, demo script, and release bundle tooling.
+- **Innovation**: First hook to combine dynamic LP protection with custom hook-fee treasury yield, pro-rata claim accumulators, and transaction-encoded NFT utility discounts.
+- **Market Value**: Gives meme and token launch pools a retention loop where trading activity directly pays dividends to early collectors and encourages holding receipts for fee discounts.
+- **Completion**: Fully written smart contract, comprehensive unit tests, deployment runbooks on X Layer mainnet, OKLink explorer verification, and a premium dApp page.
 
 ## Local Verification
 
@@ -29,7 +29,7 @@ Expected result:
 
 ```text
 PixelGuard local audit passed.
-17 tests passed, 0 failed, 0 skipped
+20 tests passed, 0 failed, 0 skipped
 ```
 
 GitHub Actions is configured in `.github/workflows/test.yml` to run Foundry build and tests on push, pull request, and manual dispatch.
