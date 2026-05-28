@@ -1,183 +1,295 @@
-# Uniswap v4 Hook Template
+# PixelGuard Hook
 
-**A template for writing Uniswap v4 Hooks 🦄**
+PixelGuard is a Uniswap v4 Hook built for the OKX Build X Hackathon Hook track on X Layer.
 
-### Get Started
+For a one-page judge overview, see `JUDGES.md`.
 
-This template provides a starting point for writing Uniswap v4 Hooks, including a simple example and preconfigured test environment. Start by creating a new repository using the "Use this template" button at the top right of this page. Alternatively you can also click this link:
+Every swap through a PixelGuard pool does two visible things:
 
-[![Use this Template](https://img.shields.io/badge/Use%20this%20Template-101010?style=for-the-badge&logo=github)](https://github.com/uniswapfoundation/v4-template/generate)
+1. `beforeSwap` classifies the trade. Large exact-input swaps receive a higher dynamic LP fee override and emit a `GuardedSwap` event.
+2. `afterSwap` mints a fully on-chain 24x24 SVG PixelGuard receipt NFT to the trader and increments a per-pool guard reserve counter.
 
-1. The example hook [Counter.sol](src/Counter.sol) demonstrates the `beforeSwap()` and `afterSwap()` hooks
-2. The test template [Counter.t.sol](test/Counter.t.sol) preconfigures the v4 pool manager, test tokens, and test liquidity.
+The one-line pitch:
 
-<details>
-<summary>Updating to v4-template:latest</summary>
+> Every swap leaves a pixel. Risky exits fund the guard.
 
-This template is actively maintained -- you can update the v4 dependencies, scripts, and helpers:
+## Why This Fits The Hackathon
 
-```bash
-git remote add template https://github.com/uniswapfoundation/v4-template
-git fetch template
-git merge template/main <BRANCH> --allow-unrelated-histories
+The official Hook track requires a Uniswap v4 Hook project deployed on X Layer with a V4 Pool and verifiable contract addresses. PixelGuard is designed to score on:
+
+- **Innovation:** combines viral swap receipts with Hook-native risk classification and dynamic fee overrides.
+- **Market value:** gives meme and launch pools a visible protection primitive without building a full launchpad.
+- **Completion:** real swaps trigger `beforeSwap` and `afterSwap`, and tests prove the behavior end to end.
+
+Official references:
+
+- Hackathon page: https://web3.okx.com/zh-hans/xlayer/build-x-hackathon/hook
+- X Layer network info: https://web3.okx.com/sv/xlayer/docs/developer/build-on-xlayer/network-information
+- X Layer Foundry verification: https://web3.okx.com/ja/xlayer/docs/developer/verify-a-smart-contract/verify-with-foundry
+
+## Contracts
+
+- `src/PixelGuardHook.sol`
+  - Hook permissions: `beforeSwap`, `afterSwap`
+  - ERC-721 receipt NFT APIs: `balanceOf`, `ownerOf`, `tokenURI`
+  - ERC-721 transfer APIs: `approve`, `getApproved`, `setApprovalForAll`, `isApprovedForAll`, `transferFrom`, `safeTransferFrom`
+  - Pool stats: `beforeSwapCount`, `afterSwapCount`, `guardReserve`, `lastFeeOverride`
+  - Trader stats: `traderRiskScore`, `receiptOfTraderByIndex`
+
+## Core Parameters
+
+- Standard fee override: `3000` = 0.30%
+- Guarded fee override: `10000` = 1.00%
+- Large swap threshold: `5 ether` token units
+- Base guard reserve increment: `10`
+- Large swap risk score: `75`
+
+The pool uses `LPFeeLibrary.DYNAMIC_FEE_FLAG`, so the Hook's returned fee override is meaningful for swaps.
+
+## Local Setup
+
+Install Foundry, then run:
+
+```powershell
+git submodule update --init --recursive
+forge test
+forge build
 ```
 
-</details>
+This repo was verified with Foundry `1.7.1`.
 
-### Requirements
+## Test Evidence
 
-This template is designed to work with Foundry (stable). If you are using Foundry Nightly, you may encounter compatibility issues. You can update your Foundry installation to the latest stable version by running:
+Current test suite:
 
-```
-foundryup
-```
+- Swap mints a PixelGuard receipt to the trader.
+- PixelGuard receipts support approval and transfer flows.
+- `tokenURI` returns on-chain JSON and embedded SVG image data.
+- `afterSwap` accrues guard reserve units.
+- Large swaps record risk and return the guarded fee override.
+- Template utility tests still pass.
 
-To set up the project, run the following commands in your terminal to install dependencies and run the tests:
+Run:
 
-```
-forge install
+```powershell
 forge test
 ```
 
-### Local Development
+Expected current result:
 
-Other than writing unit tests (recommended!), you can only deploy & test hooks on [anvil](https://book.getfoundry.sh/anvil/) locally. Scripts are available in the `script/` directory, which can be used to deploy hooks, create pools, provide liquidity and swap tokens. The scripts support both local `anvil` environment as well as running them directly on a production network.
-
-### Executing locally with using **Anvil**:
-
-1. Start Anvil (or fork a specific chain using anvil):
-
-```bash
-anvil
+```text
+17 tests passed, 0 failed, 0 skipped
 ```
 
-or
+## X Layer Deployment
 
-```bash
-anvil --fork-url <YOUR_RPC_URL>
+Chinese quickstart: `docs/submission/final-quickstart-zh.md`.
+
+X Layer network details from OKX docs:
+
+| Network | RPC | Chain ID | Explorer |
+|---|---|---:|---|
+| X Layer mainnet | `https://rpc.xlayer.tech` or `https://xlayerrpc.okx.com` | `196` | `https://www.okx.com/web3/explorer/xlayer` |
+| X Layer testnet | `https://testrpc.xlayer.tech/terigon` or `https://xlayertestrpc.okx.com/terigon` | `1952` | `https://www.okx.com/web3/explorer/xlayer-test` |
+
+Uniswap's deployment docs list X Layer mainnet v4 addresses:
+
+- PoolManager: `0x360e68faccca8ca495c1b759fd9eee466db9fb32`
+- PositionManager: `0xcf1eafc6928dc385a342e7c6491d371d2871458b`
+- Universal Router: `0xda00ae15d3a71466517129255255db7c0c0956d3`
+- Permit2: `0x000000000022D473030F116dDEE9F6B43aC78BA3`
+
+This repo's demo swap script uses Hookmate's simple `IUniswapV4Router04` interface, not the official Universal Router interface. Deploy the Hookmate router once and set `V4_SWAP_ROUTER`.
+
+The scripts support explicit environment variables:
+
+- `V4_POOL_MANAGER`
+- `V4_POSITION_MANAGER`
+- `V4_SWAP_ROUTER`
+- `HOOK_ADDRESS`
+- `TOKEN0`
+- `TOKEN1`
+
+Mainnet is the recommended path because Uniswap publishes X Layer mainnet v4 addresses. Testnet is also supported, but only if you provide the current X Layer testnet `V4_POOL_MANAGER`, `V4_POSITION_MANAGER`, and a compatible swap router address.
+
+To run the same PowerShell workflow on testnet, append `-Network testnet` to each runbook command after filling those testnet v4 addresses.
+
+Create `.env` from `.env.example`, then deploy:
+
+```powershell
+$env:PATH="$env:USERPROFILE\.foundry\bin;$env:PATH"
 ```
 
-2. Execute scripts:
+Check `.env` before deployment:
 
-```bash
-forge script script/00_DeployHook.s.sol \
-    --rpc-url http://localhost:8545 \
-    --private-key <PRIVATE_KEY> \
-    --broadcast
+```powershell
+.\tools\pixelguard-env-check.ps1
 ```
 
-### Using **RPC URLs** (actual transactions):
+After deployment, check that configured addresses have code on the selected X Layer network:
 
-:::info
-It is best to not store your private key even in .env or enter it directly in the command line. Instead use the `--account` flag to select your private key from your keystore.
-:::
-
-### Follow these steps if you have not stored your private key in the keystore:
-
-<details>
-
-1. Add your private key to the keystore:
-
-```bash
-cast wallet import <SET_A_NAME_FOR_KEY> --interactive
+```powershell
+.\tools\pixelguard-chain-check.ps1
 ```
 
-2. You will prompted to enter your private key and set a password, fill and press enter:
+To inspect the deployment wallet address and balances without printing the private key:
 
-```
-Enter private key: <YOUR_PRIVATE_KEY>
-Enter keystore password: <SET_NEW_PASSWORD>
-```
-
-You should see this:
-
-```
-`<YOUR_WALLET_PRIVATE_KEY_NAME>` keystore was saved successfully. Address: <YOUR_WALLET_ADDRESS>
+```powershell
+.\tools\pixelguard-wallet-check.ps1
 ```
 
-::: warning
-Use `history -c` to clear your command history.
-:::
+For the least error-prone path, use the guided PowerShell runbook:
 
-</details>
-
-1. Execute scripts:
-
-```bash
-forge script script/00_DeployHook.s.sol \
-    --rpc-url <YOUR_RPC_URL> \
-    --account <YOUR_WALLET_PRIVATE_KEY_NAME> \
-    --sender <YOUR_WALLET_ADDRESS> \
-    --broadcast
+```powershell
+.\tools\pixelguard-deploy.ps1 -Step test
+.\tools\pixelguard-deploy.ps1 -Step demoTokens
+.\tools\pixelguard-deploy.ps1 -Step router
+.\tools\pixelguard-deploy.ps1 -Step hook
+.\tools\pixelguard-deploy.ps1 -Step pool
+.\tools\pixelguard-deploy.ps1 -Step swap
+.\tools\pixelguard-deploy.ps1 -Step largeSwap
+.\tools\pixelguard-deploy.ps1 -Step read
 ```
 
-You will prompted to enter your wallet password, fill and press enter:
+Copy printed values into `docs/submission/deployment-results.md` after every step. The deploy scripts print the Hook address, PoolId, router, tokens, and swap amount so you do not have to dig through broadcast JSON during the final hour.
 
-```
-Enter keystore password: <YOUR_PASSWORD>
-```
+After filling `docs/submission/deployment-results.md`, generate the final copy/paste pack for Google Form and X:
 
-### Key Modifications to note:
-
-1. Update the `token0` and `token1` addresses in the `BaseScript.sol` file to match the tokens you want to use in the network of your choice for sepolia and mainnet deployments.
-2. Update the `token0Amount` and `token1Amount` in the `CreatePoolAndAddLiquidity.s.sol` file to match the amount of tokens you want to provide liquidity with.
-3. Update the `token0Amount` and `token1Amount` in the `AddLiquidity.s.sol` file to match the amount of tokens you want to provide liquidity with.
-4. Update the `amountIn` and `amountOutMin` in the `Swap.s.sol` file to match the amount of tokens you want to swap.
-
-### Verifying the hook contract
-
-```bash
-forge verify-contract \
-  --rpc-url <URL> \
-  --chain <CHAIN_NAME_OR_ID> \
-  # Generally etherscan
-  --verifier <Verification_Provider> \
-  # Use --etherscan-api-key <ETHERSCAN_API_KEY> if you are using etherscan
-  --verifier-api-key <Verification_Provider_API_KEY> \
-  --constructor-args <ABI_ENCODED_ARGS> \
-  --num-of-optimizations <OPTIMIZER_RUNS> \
-  <Contract_Address> \
-  <path/to/Contract.sol:ContractName>
-  --watch
+```powershell
+.\tools\pixelguard-submit-pack.ps1
 ```
 
-### Troubleshooting
+The generated pack includes the short/technical descriptions, full deployment evidence, contract fields, X post copy, demo voiceover, and screen checklist.
 
-<details>
+You can also check whether the submission fields are complete:
 
-#### Permission Denied
-
-When installing dependencies with `forge install`, Github may throw a `Permission Denied` error
-
-Typically caused by missing Github SSH keys, and can be resolved by following the steps [here](https://docs.github.com/en/github/authenticating-to-github/connecting-to-github-with-ssh)
-
-Or [adding the keys to your ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent), if you have already uploaded SSH keys
-
-#### Anvil fork test failures
-
-Some versions of Foundry may limit contract code size to ~25kb, which could prevent local tests to fail. You can resolve this by setting the `code-size-limit` flag
-
-```
-anvil --code-size-limit 40000
+```powershell
+.\tools\pixelguard-readiness.ps1
 ```
 
-#### Hook deployment failures
+After broadcasting deployment transactions, summarize Foundry broadcast JSON:
 
-Hook deployment failures are caused by incorrect flags or incorrect salt mining
+```powershell
+.\tools\pixelguard-broadcast-summary.ps1
+.\tools\pixelguard-broadcast-summary.ps1 -UpdateResults
+.\tools\pixelguard-generate-explorer-links.ps1
+```
 
-1. Verify the flags are in agreement:
-   - `getHookCalls()` returns the correct flags
-   - `flags` provided to `HookMiner.find(...)`
-2. Verify salt mining is correct:
-   - In **forge test**: the _deployer_ for: `new Hook{salt: salt}(...)` and `HookMiner.find(deployer, ...)` are the same. This will be `address(this)`. If using `vm.prank`, the deployer will be the pranking address
-   - In **forge script**: the deployer must be the CREATE2 Proxy: `0x4e59b44847b379578588920cA78FbF26c0B4956C`
-     - If anvil does not have the CREATE2 deployer, your foundry may be out of date. You can update it with `foundryup`
+Or run the post-deployment finalizer:
 
-</details>
+```powershell
+.\tools\pixelguard-finalize-submission.ps1
+```
 
-### Additional Resources
+For a full local audit of everything that does not require wallet credentials:
 
-- [Uniswap v4 docs](https://docs.uniswap.org/contracts/v4/overview)
-- [v4-periphery](https://github.com/uniswap/v4-periphery)
-- [v4-core](https://github.com/uniswap/v4-core)
-- [v4-by-example](https://v4-by-example.org)
+```powershell
+.\tools\pixelguard-local-audit.ps1
+```
+
+To create a source/docs release bundle:
+
+```powershell
+.\tools\pixelguard-make-release-zip.ps1
+.\tools\pixelguard-verify-release-zip.ps1
+```
+
+Recommended path: use **X Layer mainnet** because Uniswap's public v4 deployment list includes X Layer mainnet addresses. If you do not already have two ERC20 addresses for the demo pool, deploy demo tokens first and copy the printed `Recommended TOKEN0` and `Recommended TOKEN1` addresses into `.env`:
+
+```powershell
+forge script script/00_DeployDemoTokens.s.sol `
+  --rpc-url $env:XLAYER_MAINNET_RPC `
+  --private-key $env:PRIVATE_KEY `
+  --broadcast
+```
+
+Deploy a Hookmate demo router if `V4_SWAP_ROUTER` is empty:
+
+```powershell
+forge script script/00_DeployHookmateRouter.s.sol `
+  --rpc-url $env:XLAYER_MAINNET_RPC `
+  --private-key $env:PRIVATE_KEY `
+  --broadcast
+```
+
+Copy the printed router address into `V4_SWAP_ROUTER`.
+
+Deploy the Hook:
+
+```powershell
+$env:PATH="$env:USERPROFILE\.foundry\bin;$env:PATH"
+
+forge script script/00_DeployHook.s.sol `
+  --rpc-url $env:XLAYER_MAINNET_RPC `
+  --private-key $env:PRIVATE_KEY `
+  --broadcast
+```
+
+Copy the deployed Hook address into `HOOK_ADDRESS`, then create the pool and add liquidity:
+
+```powershell
+forge script script/01_CreatePoolAndAddLiquidity.s.sol `
+  --rpc-url $env:XLAYER_MAINNET_RPC `
+  --private-key $env:PRIVATE_KEY `
+  --broadcast
+```
+
+Run a demo swap:
+
+```powershell
+forge script script/03_Swap.s.sol `
+  --rpc-url $env:XLAYER_MAINNET_RPC `
+  --private-key $env:PRIVATE_KEY `
+  --broadcast
+```
+
+Read the Hook state:
+
+```powershell
+forge script script/04_ReadPixelGuard.s.sol `
+  --rpc-url $env:XLAYER_MAINNET_RPC
+```
+
+For the Demo video, run a normal swap and a large swap. The swap receiver and PixelGuard receipt owner are both the deployment wallet. The large swap uses `SWAP_AMOUNT=5e18` in the PowerShell runbook and should emit `GuardedSwap`.
+
+## Verify On OKX Explorer
+
+OKX docs recommend applying for an OKLink API key, waiting one to two minutes after deployment, then using Foundry verification with an OKLink verify URL.
+
+Example for X Layer testnet:
+
+```powershell
+forge verify-contract `
+  --rpc-url $env:XLAYER_TESTNET_RPC `
+  --verifier-url "https://www.oklink.com/api/v5/explorer/contract/verify-source-code-plugin/XLAYER_TESTNET" `
+  --verifier-api-key $env:OKLINK_API_KEY `
+  --constructor-args $(cast abi-encode "constructor(address)" $env:V4_POOL_MANAGER) `
+  --watch `
+  $env:HOOK_ADDRESS `
+  src/PixelGuardHook.sol:PixelGuardHook
+```
+
+For mainnet, use `XLAYER` in the verify URL.
+
+## Submission Package
+
+See:
+
+- `docs/submission/demo-video-script.md`
+- `docs/submission/completion-audit.md`
+- `docs/submission/final-30-minute-runbook.md`
+- `docs/submission/中文最终冲刺.md`
+- `docs/submission/final-quickstart-zh.md`
+- `docs/submission/google-form-answers.md`
+- `docs/submission/twitter-plan.md`
+- `docs/submission/x-account-kit.md`
+- `docs/submission/submission-checklist.md`
+- `docs/submission/deployment-results.md`
+- `docs/submission/generated-submit-pack.md` after running `tools/pixelguard-submit-pack.ps1`
+
+## Important Notes
+
+- X account creation and posting are intentionally left to the project owner.
+- Wallet funding, private-key handling, and final deployment broadcasting require the project owner's wallet.
+- Do not submit until the deployed Hook address, Pool address, verified source, demo video URL, and X account post are all in the checklist.
+

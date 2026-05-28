@@ -5,18 +5,22 @@ import {PoolKey} from "@uniswap/v4-core/src/types/PoolKey.sol";
 import {CurrencyLibrary, Currency} from "@uniswap/v4-core/src/types/Currency.sol";
 import {LiquidityAmounts} from "@uniswap/v4-core/test/utils/LiquidityAmounts.sol";
 import {TickMath} from "@uniswap/v4-core/src/libraries/TickMath.sol";
+import {LPFeeLibrary} from "@uniswap/v4-core/src/libraries/LPFeeLibrary.sol";
+import {PoolId, PoolIdLibrary} from "@uniswap/v4-core/src/types/PoolId.sol";
+import {console2} from "forge-std/console2.sol";
 
 import {BaseScript} from "./base/BaseScript.sol";
 import {LiquidityHelpers} from "./base/LiquidityHelpers.sol";
 
 contract CreatePoolAndAddLiquidityScript is BaseScript, LiquidityHelpers {
     using CurrencyLibrary for Currency;
+    using PoolIdLibrary for PoolKey;
 
     /////////////////////////////////////
     // --- Configure These ---
     /////////////////////////////////////
 
-    uint24 lpFee = 3000; // 0.30%
+    uint24 lpFee = LPFeeLibrary.DYNAMIC_FEE_FLAG;
     int24 tickSpacing = 60;
     uint160 startingPrice = 2 ** 96; // Starting price, sqrtPriceX96; floor(sqrt(1) * 2^96)
 
@@ -31,11 +35,7 @@ contract CreatePoolAndAddLiquidityScript is BaseScript, LiquidityHelpers {
 
     function run() external {
         PoolKey memory poolKey = PoolKey({
-            currency0: currency0,
-            currency1: currency1,
-            fee: lpFee,
-            tickSpacing: tickSpacing,
-            hooks: hookContract
+            currency0: currency0, currency1: currency1, fee: lpFee, tickSpacing: tickSpacing, hooks: hookContract
         });
 
         bytes memory hookData = new bytes(0);
@@ -82,5 +82,16 @@ contract CreatePoolAndAddLiquidityScript is BaseScript, LiquidityHelpers {
         // Multicall to atomically create pool & add liquidity
         positionManager.multicall{value: valueToPass}(params);
         vm.stopBroadcast();
+
+        console2.log("PixelGuard Pool created and seeded");
+        console2.log("Hook:", address(hookContract));
+        console2.log("PoolManager:", address(poolManager));
+        console2.log("PositionManager:", address(positionManager));
+        console2.log("Currency0:", Currency.unwrap(currency0));
+        console2.log("Currency1:", Currency.unwrap(currency1));
+        console2.log("PoolId:");
+        console2.logBytes32(PoolId.unwrap(poolKey.toId()));
+        console2.log("Tick lower:", tickLower);
+        console2.log("Tick upper:", tickUpper);
     }
 }

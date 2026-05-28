@@ -22,15 +22,19 @@ contract BaseScript is Script, Deployers {
     /////////////////////////////////////
     // --- Configure These ---
     /////////////////////////////////////
-    IERC20 internal constant token0 = IERC20(0x0165878A594ca255338adfa4d48449f69242Eb8F);
-    IERC20 internal constant token1 = IERC20(0xa513E6E4b8f2a923D98304ec87F64353C4D5C853);
-    IHooks constant hookContract = IHooks(address(0));
+    IERC20 internal token0;
+    IERC20 internal token1;
+    IHooks internal hookContract;
     /////////////////////////////////////
 
     Currency immutable currency0;
     Currency immutable currency1;
 
     constructor() {
+        token0 = IERC20(vm.envOr("TOKEN0", address(0x0165878A594ca255338adfa4d48449f69242Eb8F)));
+        token1 = IERC20(vm.envOr("TOKEN1", address(0xa513E6E4b8f2a923D98304ec87F64353C4D5C853)));
+        hookContract = IHooks(vm.envOr("HOOK_ADDRESS", address(0)));
+
         // Make sure artifacts are available, either deploy or configure.
         deployArtifacts();
 
@@ -57,7 +61,44 @@ contract BaseScript is Script, Deployers {
         }
     }
 
-    function getCurrencies() internal pure returns (Currency, Currency) {
+    function deployPoolManager() internal override {
+        address configured = vm.envOr("V4_POOL_MANAGER", address(0));
+        if (configured != address(0)) {
+            poolManager = IPoolManager(configured);
+        } else if (block.chainid == 196) {
+            poolManager = IPoolManager(0x360E68faCcca8cA495c1B759Fd9EEe466db9FB32);
+        } else if (block.chainid == 31337) {
+            super.deployPoolManager();
+        } else {
+            revert("Set V4_POOL_MANAGER for this network");
+        }
+    }
+
+    function deployPositionManager() internal override {
+        address configured = vm.envOr("V4_POSITION_MANAGER", address(0));
+        if (configured != address(0)) {
+            positionManager = IPositionManager(configured);
+        } else if (block.chainid == 196) {
+            positionManager = IPositionManager(0xcF1EAFC6928dC385A342E7C6491d371d2871458b);
+        } else if (block.chainid == 31337) {
+            super.deployPositionManager();
+        } else {
+            revert("Set V4_POSITION_MANAGER for this network");
+        }
+    }
+
+    function deployRouter() internal override {
+        address configured = vm.envOr("V4_SWAP_ROUTER", address(0));
+        if (configured != address(0)) {
+            swapRouter = IUniswapV4Router04(payable(configured));
+        } else if (block.chainid == 31337) {
+            super.deployRouter();
+        } else {
+            swapRouter = IUniswapV4Router04(payable(address(0)));
+        }
+    }
+
+    function getCurrencies() internal view returns (Currency, Currency) {
         require(address(token0) != address(token1));
 
         if (token0 < token1) {

@@ -12,3 +12,7 @@ via_ir = false
 [lint]
 exclude_lints = ["screaming-snake-case-immutable", "screaming-snake-case-const"]
 lint_on_build = false
+
+[rpc_endpoints]
+xlayer = "${XLAYER_MAINNET_RPC}"
+xlayer_testnet = "${XLAYER_TESTNET_RPC}"

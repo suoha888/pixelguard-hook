@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="500" viewBox="0 0 1500 500" shape-rendering="crispEdges">
+  <rect width="1500" height="500" fill="#0f172a"/>
+  <rect x="0" y="0" width="1500" height="500" fill="#111827"/>
+  <g opacity="0.95">
+    <rect x="72" y="76" width="64" height="64" fill="#22c55e"/>
+    <rect x="136" y="76" width="64" height="64" fill="#14b8a6"/>
+    <rect x="200" y="76" width="64" height="64" fill="#38bdf8"/>
+    <rect x="264" y="76" width="64" height="64" fill="#f8fafc"/>
+    <rect x="72" y="140" width="64" height="64" fill="#a3e635"/>
+    <rect x="136" y="140" width="64" height="64" fill="#f97316"/>
+    <rect x="200" y="140" width="64" height="64" fill="#facc15"/>
+    <rect x="264" y="140" width="64" height="64" fill="#22c55e"/>
+    <rect x="72" y="204" width="64" height="64" fill="#38bdf8"/>
+    <rect x="136" y="204" width="64" height="64" fill="#fb7185"/>
+    <rect x="200" y="204" width="64" height="64" fill="#c084fc"/>
+    <rect x="264" y="204" width="64" height="64" fill="#14b8a6"/>
+    <rect x="72" y="268" width="64" height="64" fill="#f8fafc"/>
+    <rect x="136" y="268" width="64" height="64" fill="#22c55e"/>
+    <rect x="200" y="268" width="64" height="64" fill="#f97316"/>
+    <rect x="264" y="268" width="64" height="64" fill="#38bdf8"/>
+    <rect x="64" y="348" width="272" height="18" fill="#f97316"/>
+  </g>
+  <text x="420" y="205" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700" fill="#f8fafc">PixelGuard Hook</text>
+  <text x="424" y="275" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#cbd5e1">Every swap leaves a pixel. Risky exits fund the guard.</text>
+  <text x="424" y="340" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#38bdf8">Uniswap v4 Hook on X Layer</text>
+  <rect x="1230" y="78" width="52" height="52" fill="#22c55e"/>
+  <rect x="1282" y="78" width="52" height="52" fill="#38bdf8"/>
+  <rect x="1334" y="78" width="52" height="52" fill="#f97316"/>
+  <rect x="1386" y="78" width="52" height="52" fill="#f8fafc"/>
+  <rect x="1230" y="130" width="52" height="52" fill="#facc15"/>
+  <rect x="1282" y="130" width="52" height="52" fill="#c084fc"/>
+  <rect x="1334" y="130" width="52" height="52" fill="#14b8a6"/>
+  <rect x="1386" y="130" width="52" height="52" fill="#fb7185"/>
+</svg>

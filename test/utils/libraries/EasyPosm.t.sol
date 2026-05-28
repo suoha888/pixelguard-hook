@@ -220,7 +220,7 @@ contract EasyPosmTest is Test, BaseTest {
         assertEq(delta.amount1(), -mintDelta.amount1() - 1 wei);
     }
 
-    // This test requires a donateRouter, TODO
+    // This upstream helper case requires a donateRouter, so it is intentionally omitted here.
     // function test_collect() public {
     //     (uint256 tokenId,) = positionManager.mint(
     //         key,

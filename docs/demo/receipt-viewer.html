@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PixelGuard Receipt Viewer</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0f172a;
+        color: #e5e7eb;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 32px;
+      }
+
+      main {
+        width: min(920px, 100%);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 260px;
+        gap: 24px;
+        align-items: start;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: #94a3b8;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 280px;
+        box-sizing: border-box;
+        resize: vertical;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 14px;
+        background: #020617;
+        color: #e5e7eb;
+        font: 13px/1.5 ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      }
+
+      button {
+        margin-top: 12px;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        background: #22c55e;
+        color: #052e16;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      figure {
+        margin: 0;
+        padding: 18px;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        background: #020617;
+      }
+
+      img {
+        width: 224px;
+        height: 224px;
+        image-rendering: pixelated;
+        border: 1px solid #334155;
+        background: #111827;
+      }
+
+      figcaption {
+        margin-top: 12px;
+        color: #94a3b8;
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section>
+        <h1>PixelGuard Receipt Viewer</h1>
+        <p>Paste `tokenURI(tokenId)` output from `script/04_ReadPixelGuard.s.sol` and render the embedded on-chain SVG for the demo video.</p>
+        <textarea id="uri" spellcheck="false" placeholder="data:application/json;utf8,{...}"></textarea>
+        <button type="button" id="render">Render Receipt</button>
+      </section>
+      <figure>
+        <img id="image" alt="PixelGuard receipt preview" />
+        <figcaption id="caption">No receipt loaded.</figcaption>
+      </figure>
+    </main>
+    <script>
+      const textarea = document.getElementById("uri");
+      const image = document.getElementById("image");
+      const caption = document.getElementById("caption");
+
+      document.getElementById("render").addEventListener("click", () => {
+        const raw = textarea.value.trim();
+        const prefix = "data:application/json;utf8,";
+        if (!raw.startsWith(prefix)) {
+          caption.textContent = "Expected a data:application/json;utf8 tokenURI.";
+          image.removeAttribute("src");
+          return;
+        }
+
+        try {
+          const metadata = JSON.parse(raw.slice(prefix.length));
+          image.src = metadata.image;
+          caption.textContent = `${metadata.name} | ${metadata.attributes.map((item) => `${item.trait_type}: ${item.value}`).join(" | ")}`;
+        } catch (error) {
+          caption.textContent = `Could not parse metadata: ${error.message}`;
+          image.removeAttribute("src");
+        }
+      });
+    </script>
+  </body>
+</html>
