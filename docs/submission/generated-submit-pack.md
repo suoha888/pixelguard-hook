@@ -47,7 +47,7 @@ Use these if the form asks for addresses, links, or transactions separately.
 - Tick lower: -45000
 - Tick upper: 45000
 - Demo token deploy tx: 0x97985c452260139be615cf75f4c6fda7b190651348b038c5451774458fc78e37
-- Hookmate router deploy tx: Predeployed (CREATE2 Collision)
+- Hookmate router deploy tx: 0x0000000000000000000000000000000000000000000000000000000000000000
 - Hook deploy tx: 0x3e4a30a2a2f98bb0ffb714c65f214e432b826128146a6306770809febeabbb63
 - Pool initialize/add-liquidity tx: 0xe0ec7b2da530b66ef9523d7154f51273b23f7722145ec9e4a626180afa20db73
 - Normal swap tx: 0x5ff5e4648b1ed1219e20b16179e4f1758504dfedf6563f37630337a3b3d15db6
